@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find C:Usersyutayai-uranai-kun/app -type f -name *.tsx -o -name *.ts -o -name *.json)",
+      "Bash(node:*)",
+      "Bash(grep -E \"^hooks$\")",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)",
+      "WebFetch(domain:localhost)",
+      "Bash(npm install:*)",
+      "Bash(npx --no-install next --version)",
+      "Bash(npx kill-port:*)",
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill /F /PID 22216)",
+      "Bash(cmd /c \"taskkill /F /PID 22216\")",
+      "Bash(cmd /c \"taskkill /F /PID 22216 2>&1\")",
+      "Bash(cmd /c \"netstat -ano | findstr :3000\")",
+      "Bash(powershell -Command \"Stop-Process -Id 22216 -Force -ErrorAction SilentlyContinue; Start-Sleep 1; \\(Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue\\).OwningProcess\")",
+      "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force\")",
+      "Bash(grep -r \"rateLimit\\\\|rate.*limit\\\\|Ratelimit\\\\|RateLimit\" /c/Users/yutay/ai-uranai-kun --include=*.ts --include=*.tsx --include=*.js --exclude-dir=node_modules)"
+    ]
+  }
+}

@@ -1,0 +1,223 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+/* LP のダークテーマを html/body レベルで強制。
+   Tailwind の Preflight や bg-white/bg-background による上書きを !important で防ぐ。
+   chat ページは自身の bg-* クラスで上書きしているため影響なし。 */
+html,
+body {
+  background: #0d0a1a !important;
+  color: #f5f3ff !important;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* ── Dark LP: shimmer text ─────────────────────────────── */
+/* shimmer keyframe は tailwind.config.ts にも定義済み（Tailwindアニメーション用）。
+   .shimmer-text クラスは CSS background-clip text のために直接定義する。 */
+@keyframes shimmer {
+  0%   { background-position: 0%   center; }
+  100% { background-position: 300% center; }
+}
+
+/* ── CTA ボタン: 光の輪 ─────────────────────────────────── */
+@keyframes ring-pulse {
+  0%   { transform: scale(1);    opacity: 0.7; }
+  100% { transform: scale(1.22); opacity: 0;   }
+}
+
+.cta-ring {
+  position: relative;
+}
+
+.cta-ring::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 9999px;
+  border: 1.5px solid rgba(168,139,250,0.5);
+  animation: ring-pulse 2.5s ease-out infinite;
+  pointer-events: none;
+}
+
+/* ── 水晶: スパークル ────────────────────────────────────── */
+@keyframes sparkle-pop {
+  0%   { transform: scale(1);   filter: drop-shadow(0 0 30px rgba(168,139,250,0.8)); }
+  45%  { transform: scale(1.2); filter: drop-shadow(0 0 55px rgba(168,139,250,1)) drop-shadow(0 0 90px rgba(196,181,253,0.7)); }
+  100% { transform: scale(1);   filter: drop-shadow(0 0 30px rgba(168,139,250,0.8)); }
+}
+
+.crystal-sparkle {
+  animation: sparkle-pop 0.4s ease-out forwards;
+}
+
+/* ── Chat: メッセージ fadeUp ─────────────────────────────── */
+@keyframes msgFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.msg-fade-up {
+  animation: msgFadeUp 0.2s ease-out both;
+}
+
+.shimmer-text {
+  background: linear-gradient(90deg, #ffffff 0%, #c4b5fd 40%, #ffffff 70%, #c4b5fd 100%);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+@keyframes tarotDeal {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.tarot-deck-scroll {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.tarot-deck-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.tarot-deck-scroll::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: rgba(168, 139, 250, 0.4);
+}
+
+.tarot-card-shell {
+  position: relative;
+  flex: 0 0 auto;
+  animation: tarotDeal 0.45s ease both;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.tarot-card-shell-hidden {
+  opacity: 0.2;
+  transform: scale(0.92);
+}
+
+.tarot-card-order {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  z-index: 4;
+  border-radius: 9999px;
+  border: 1px solid rgba(196, 181, 253, 0.65);
+  background: rgba(76, 29, 149, 0.82);
+  padding: 2px 8px;
+  font-size: 10px;
+  line-height: 1.2;
+  color: #ede9fe;
+}
+
+.tarot-card {
+  display: block;
+  width: 120px;
+  height: 180px;
+  border-radius: 14px;
+  perspective: 900px;
+}
+
+.tarot-card-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.8s ease;
+}
+
+.tarot-card-revealed .tarot-card-inner {
+  transform: rotateY(180deg);
+}
+
+.tarot-card-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  backface-visibility: hidden;
+}
+
+.tarot-card-back {
+  background: #1a0a2e;
+  border: 1px solid rgba(168, 139, 250, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tarot-card-shell:hover .tarot-card-back {
+  transform: translateY(-3px);
+  box-shadow: 0 0 26px rgba(168, 139, 250, 0.28);
+}
+
+.tarot-card-diamond {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(196, 181, 253, 0.75);
+  transform: rotate(45deg);
+  box-shadow: 0 0 14px rgba(168, 139, 250, 0.35);
+}
+
+.tarot-card-front {
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(124, 58, 237, 0.2);
+  border: 1px solid rgba(168, 139, 250, 0.48);
+  color: #f5f3ff;
+  transform: rotateY(180deg);
+}
+
+.tarot-card-symbol {
+  font-size: 22px;
+  line-height: 1;
+  filter: drop-shadow(0 0 12px rgba(168, 139, 250, 0.45));
+}
+
+.tarot-card-name {
+  max-width: 92px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.tarot-card-selected .tarot-card-back {
+  box-shadow: 0 0 32px rgba(168, 85, 247, 0.7), 0 0 16px rgba(192, 132, 252, 0.45);
+  border-color: rgba(192, 132, 252, 0.9);
+}
