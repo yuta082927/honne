@@ -18,7 +18,12 @@
       "Bash(cmd /c \"netstat -ano | findstr :3000\")",
       "Bash(powershell -Command \"Stop-Process -Id 22216 -Force -ErrorAction SilentlyContinue; Start-Sleep 1; \\(Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue\\).OwningProcess\")",
       "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force\")",
-      "Bash(grep -r \"rateLimit\\\\|rate.*limit\\\\|Ratelimit\\\\|RateLimit\" /c/Users/yutay/ai-uranai-kun --include=*.ts --include=*.tsx --include=*.js --exclude-dir=node_modules)"
+      "Bash(grep -r \"rateLimit\\\\|rate.*limit\\\\|Ratelimit\\\\|RateLimit\" /c/Users/yutay/ai-uranai-kun --include=*.ts --include=*.tsx --include=*.js --exclude-dir=node_modules)",
+      "Bash(taskkill:*)",
+      "Bash(cmd /c \"taskkill /PID 9072 /F\")",
+      "Bash(powershell -Command \"Stop-Process -Id 9072 -Force -ErrorAction SilentlyContinue; Write-Host 'done'\")",
+      "Bash(mkdir ~/articles)",
+      "Read(//c/Users/yutay/**)"
     ]
   }
 }

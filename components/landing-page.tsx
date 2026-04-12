@@ -613,7 +613,7 @@ export function LandingPage() {
     <div className="bg-void">
       {/* ── ナビゲーション ────────────────────────────────── */}
       <nav className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between px-4 py-4 sm:px-8" style={{ background: "#0d0a1a", borderBottom: "1px solid rgba(168,139,250,0.18)" }}>
-        <Link href="/" className="text-sm font-bold text-star">AI占いくん</Link>
+        <Link href="/" className="text-sm font-bold text-star">ホンネ</Link>
         <div className="flex items-center gap-2 text-xs sm:text-sm">
           {loadingAuth ? (
             <span className="text-starsub">確認中...</span>

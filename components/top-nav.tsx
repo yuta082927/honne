@@ -46,7 +46,7 @@ export function TopNav() {
     <header className="sticky top-0 z-20 border-b border-rose-100 bg-white/85 backdrop-blur">
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-3 py-2 sm:px-6">
         <Link href="/" className="text-sm font-semibold text-ink">
-          AI占いくん
+          ホンネ
         </Link>
 
         <nav className="flex items-center gap-2 text-xs sm:text-sm">

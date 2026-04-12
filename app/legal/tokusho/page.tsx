@@ -1,5 +1,8 @@
-export const metadata = {
-  title: "特定商取引法に基づく表記 | AI占いくん",
+﻿import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "特定商取引法に基づく表記",
+  description: "ホンネの特定商取引法に基づく表記ページです。料金や支払い方法、提供条件などを記載しています。"
 };
 
 const rows: { label: string; value: string | string[] }[] = [

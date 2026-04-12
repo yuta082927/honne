@@ -304,7 +304,7 @@ export function FortuneForm() {
         <header className="shrink-0 px-3 py-3 sm:px-5" style={{ borderBottom: "1px solid rgba(168,139,250,0.2)", background: "rgba(13,10,26,0.95)" }}>
           <div className="flex items-center justify-between gap-3">
             <Link href="/" className="text-base font-semibold text-star hover:text-violet-glow">
-              AI占いくん
+              ホンネ
             </Link>
             <p className="rounded-full px-3 py-1 text-[11px] text-starsub" style={{ border: "1px solid rgba(168,139,250,0.2)", background: "rgba(255,255,255,0.05)" }}>{usageBadge}</p>
           </div>

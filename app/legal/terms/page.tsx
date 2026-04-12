@@ -1,5 +1,8 @@
-export const metadata = {
-  title: "利用規約 | AI占いくん",
+﻿import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "利用規約",
+  description: "ホンネの利用規約ページです。AIであることを開示した透明・誠実な占いサービスの利用条件を記載しています。"
 };
 
 export default function TermsPage() {
@@ -9,7 +12,7 @@ export default function TermsPage() {
       <p className="mb-10 text-sm text-starsub">最終更新日：2026年3月27日</p>
 
       <p className="mb-10 leading-relaxed text-starsub">
-        この利用規約（以下「本規約」）は、山口祐汰（以下「運営者」）が提供するAI占いくん（以下「本サービス」）の利用条件を定めるものです。
+        この利用規約（以下「本規約」）は、山口祐汰（以下「運営者」）が提供するホンネ（以下「本サービス」）の利用条件を定めるものです。
       </p>
 
       <Section title="第1条（適用）">

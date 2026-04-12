@@ -1,5 +1,8 @@
-export const metadata = {
-  title: "プライバシーポリシー | AI占いくん",
+﻿import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "プライバシーポリシー",
+  description: "ホンネのプライバシーポリシーページです。AI占いサービスとしての個人情報の取り扱い方針を記載しています。"
 };
 
 export default function PrivacyPage() {
@@ -9,7 +12,7 @@ export default function PrivacyPage() {
       <p className="mb-10 text-sm text-starsub">最終更新日：2026年3月27日</p>
 
       <p className="mb-10 leading-relaxed text-starsub">
-        山口祐汰（以下「運営者」）は、AI占いくん（以下「本サービス」）における個人情報の取り扱いについて、以下のとおり定めます。
+        山口祐汰（以下「運営者」）は、ホンネ（以下「本サービス」）における個人情報の取り扱いについて、以下のとおり定めます。
       </p>
 
       <Section title="第1条（取得する情報）">

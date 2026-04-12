@@ -2,9 +2,38 @@
 import { AppShell } from "@/components/app-shell";
 import "./globals.css";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const defaultDescription =
+  "ホンネは、AIであることを明示した透明・誠実なAI占いサービス。恋愛や人間関係の悩みに24時間、正直な鑑定を届けます。";
+
 export const metadata: Metadata = {
-  title: "AI占いくん",
-  description: "恋愛の悩みを24時間相談できる、恋愛特化のAI占いアプリ"
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "ホンネ",
+    template: "%s | ホンネ"
+  },
+  description: defaultDescription,
+  applicationName: "ホンネ",
+  alternates: {
+    canonical: "/"
+  },
+  openGraph: {
+    title: "ホンネ",
+    description: defaultDescription,
+    siteName: "ホンネ",
+    url: "/",
+    locale: "ja_JP",
+    type: "website"
+  },
+  twitter: {
+    card: "summary",
+    title: "ホンネ",
+    description: defaultDescription
+  },
+  robots: {
+    index: true,
+    follow: true
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
