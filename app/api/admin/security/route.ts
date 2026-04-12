@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAccess } from "@/lib/api-guards";
 import { supabaseAdmin } from "@/lib/supabase";
 
+export const dynamic = "force-dynamic";
+
 async function countRows(table: string): Promise<number | null> {
   const result = await supabaseAdmin.from(table).select("*", { count: "exact", head: true });
   if (result.error) {
@@ -38,4 +40,3 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     { status: 200 }
   );
 }
-
