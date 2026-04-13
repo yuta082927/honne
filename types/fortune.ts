@@ -86,6 +86,12 @@ export type FortuneCreateResponse = {
       | "openai-fallback-error"
       | "bypass";
     marker: string;
+    openaiError?: {
+      type: string;
+      message: string;
+      status?: number;
+      code?: string;
+    };
   };
   error?: string;
   code?: string;

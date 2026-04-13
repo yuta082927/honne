@@ -32,6 +32,12 @@ export type FortuneResponseSource =
 export type FortuneGenerationResult = {
   text: string;
   source: FortuneResponseSource;
+  errorDetail?: {
+    type: string;
+    message: string;
+    status?: number;
+    code?: string;
+  };
 };
 
 type VariationProfile = {
@@ -225,9 +231,27 @@ ${variationInstruction}`;
     };
   } catch (error) {
     console.error("[openai] OpenAI generation failed. Returning fallback.", error);
+    const errorObject = error as {
+      name?: string;
+      message?: string;
+      status?: number;
+      code?: string;
+      type?: string;
+    };
+    const rawMessage =
+      typeof errorObject?.message === "string" && errorObject.message.trim().length > 0
+        ? errorObject.message.trim()
+        : "OpenAI request failed";
+    const safeMessage = rawMessage.slice(0, 200);
     return {
       text: fallback,
-      source: "openai-fallback-error"
+      source: "openai-fallback-error",
+      errorDetail: {
+        type: errorObject?.type ?? errorObject?.name ?? "OpenAIError",
+        message: safeMessage,
+        status: typeof errorObject?.status === "number" ? errorObject.status : undefined,
+        code: typeof errorObject?.code === "string" ? errorObject.code : undefined
+      }
     };
   }
 }

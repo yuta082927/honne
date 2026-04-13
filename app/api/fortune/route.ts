@@ -212,6 +212,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     let responseSource: FortuneResponseSource | "bypass";
     let rawResponse: string;
+    let openaiErrorDetail:
+      | {
+          type: string;
+          message: string;
+          status?: number;
+          code?: string;
+        }
+      | undefined;
     if (bypassOpenAI) {
       responseSource = "bypass";
       rawResponse = buildBypassFortuneResponse({ mode, depth, concern, debugRequestId });
@@ -227,6 +235,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
       responseSource = generated.source;
       rawResponse = generated.text;
+      openaiErrorDetail = generated.errorDetail;
     }
     const debugMarker = buildDebugMarker(debugRequestId, responseSource);
     const aiResponse = debugMarkerEnabled ? `${rawResponse}\n\n${debugMarker}` : rawResponse;
@@ -297,7 +306,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           ? {
               requestId: debugRequestId,
               source: responseSource,
-              marker: debugMarker
+              marker: debugMarker,
+              openaiError: openaiErrorDetail
             }
           : undefined
       },
