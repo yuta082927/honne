@@ -8,6 +8,8 @@ param(
   [string]$Mode = "総合",
   [string]$Depth = "ライト",
   [string]$SelfBirthDate = "1995-05-20",
+  [ValidateSet("default", "sales_v2")]
+  [string]$PromptProfile = "sales_v2",
   [int]$Repeat = 1,
   [switch]$EnableDebugMarker,
   [switch]$BypassOpenAI
@@ -20,6 +22,7 @@ Write-Host "[verify-fortune-api] repeat   = $repeatCount"
 Write-Host "[verify-fortune-api] bypass   = $($BypassOpenAI.IsPresent)"
 Write-Host "[verify-fortune-api] marker   = $($EnableDebugMarker.IsPresent)"
 Write-Host "[verify-fortune-api] token    = $([string]::IsNullOrWhiteSpace($AccessToken) -eq $false)"
+Write-Host "[verify-fortune-api] profile  = $PromptProfile"
 
 for ($i = 1; $i -le $repeatCount; $i++) {
   $debugRequestId = "manual-$i-" + [guid]::NewGuid().ToString("N")
@@ -40,6 +43,8 @@ for ($i = 1; $i -le $repeatCount; $i++) {
     $headers["x-openai-bypass"] = "1"
   }
 
+  $headers["x-openai-prompt-profile"] = $PromptProfile
+
   $body = @{
     mode          = $Mode
     depth         = $Depth
@@ -58,6 +63,7 @@ for ($i = 1; $i -le $repeatCount; $i++) {
     Write-Host "status: $($response.StatusCode)"
     Write-Host "debug.requestId: $($json.debug.requestId)"
     Write-Host "debug.source: $($json.debug.source)"
+    Write-Host "debug.promptProfile: $($json.debug.promptProfile)"
     Write-Host "header.x-fortune-response-source: $($response.Headers['x-fortune-response-source'])"
     Write-Host "preview.firstLine: $preview"
   }

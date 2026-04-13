@@ -65,6 +65,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const debugMarkerEnabled =
       forceDebugMarker || debugOpenAI || request.headers.get("x-fortune-debug") === "1";
     const bypassOpenAI = forceBypassOpenAI || request.headers.get("x-openai-bypass") === "1";
+    const requestedPromptProfile = request.headers.get("x-openai-prompt-profile") ?? undefined;
 
     const authError = await assertOptionalAuthTokenIsValid(request);
     if (authError) {
@@ -220,6 +221,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           code?: string;
         }
       | undefined;
+    let promptProfile: "default" | "sales_v2" = "sales_v2";
     if (bypassOpenAI) {
       responseSource = "bypass";
       rawResponse = buildBypassFortuneResponse({ mode, depth, concern, debugRequestId });
@@ -231,11 +233,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         concern,
         cards,
         history,
-        computed
+        computed,
+        promptProfile: requestedPromptProfile === "default" ? "default" : "sales_v2"
       });
       responseSource = generated.source;
       rawResponse = generated.text;
       openaiErrorDetail = generated.errorDetail;
+      promptProfile = generated.promptProfile;
     }
     const debugMarker = buildDebugMarker(debugRequestId, responseSource);
     const aiResponse = debugMarkerEnabled ? `${rawResponse}\n\n${debugMarker}` : rawResponse;
@@ -307,7 +311,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               requestId: debugRequestId,
               source: responseSource,
               marker: debugMarker,
-              openaiError: openaiErrorDetail
+              openaiError: openaiErrorDetail,
+              promptProfile
             }
           : undefined
       },

@@ -92,6 +92,7 @@ export type FortuneCreateResponse = {
       status?: number;
       code?: string;
     };
+    promptProfile?: "default" | "sales_v2";
   };
   error?: string;
   code?: string;

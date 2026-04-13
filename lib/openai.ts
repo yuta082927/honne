@@ -3,7 +3,10 @@ import { DEPTH_MAX_TOKENS, type FortuneMode, type FortuneType, type ResponseDept
 import { env } from "@/lib/env";
 import {
   LOVE_FORTUNE_SALES_SYSTEM_PROMPT,
-  buildLoveFortuneSalesUserPrompt
+  buildLoveFortuneSalesFallback,
+  buildLoveFortuneSalesUserPrompt,
+  normalizeLoveFortuneSalesOutput,
+  type SalesPromptProfile
 } from "@/lib/fortune/prompts/sales";
 import {
   buildFallbackFortune,
@@ -25,7 +28,7 @@ type TarotCard = {
 
 const client = env.OPENAI_API_KEY ? new OpenAI({ apiKey: env.OPENAI_API_KEY }) : null;
 const debugOpenAI = process.env.OPENAI_DEBUG === "1";
-const useSalesPrompt = process.env.OPENAI_SALES_PROMPT !== "0";
+const defaultPromptProfile: SalesPromptProfile = process.env.OPENAI_SALES_PROMPT === "0" ? "default" : "sales_v2";
 
 export type FortuneResponseSource =
   | "openai"
@@ -37,6 +40,7 @@ export type FortuneResponseSource =
 export type FortuneGenerationResult = {
   text: string;
   source: FortuneResponseSource;
+  promptProfile: SalesPromptProfile;
   errorDetail?: {
     type: string;
     message: string;
@@ -101,7 +105,9 @@ function personalizeFallback(base: string, profile: VariationProfile, concernAnc
   const injected = `${profile.openingLead}「${concernAnchor}」を、${profile.lens}で整理します。`;
   const withSummary = base.includes("### 要約\n")
     ? base.replace("### 要約\n", `### 要約\n${injected}\n`)
-    : `${injected}\n\n${base}`;
+    : base.includes("① 要約\n")
+      ? base.replace("① 要約\n", `① 要約\n${injected}\n`)
+      : `${injected}\n\n${base}`;
 
   return `${withSummary}\n\n補足: ${profile.closingStyle}を意識して次の一歩を決めてください。`;
 }
@@ -162,6 +168,26 @@ function buildSalesSupplementalInfo(input: {
   return lines.join("\n");
 }
 
+function resolvePromptProfile(requested?: string): SalesPromptProfile {
+  if (requested === "default") return "default";
+  if (requested === "sales_v2") return "sales_v2";
+  return defaultPromptProfile;
+}
+
+function dedupeConsecutiveLines(text: string): string {
+  const lines = text.split(/\r?\n/);
+  const deduped: string[] = [];
+
+  for (const line of lines) {
+    const prev = deduped[deduped.length - 1];
+    if (line.trim().length > 0 && prev === line) continue;
+    if (line.trim().length === 0 && prev?.trim().length === 0) continue;
+    deduped.push(line);
+  }
+
+  return deduped.join("\n").trim();
+}
+
 export async function generateFortune(input: {
   type?: FortuneType;
   mode: FortuneMode;
@@ -170,6 +196,7 @@ export async function generateFortune(input: {
   cards?: TarotCard[];
   history?: HistoryMessage[];
   computed: FortuneComputationResult;
+  promptProfile?: SalesPromptProfile;
 }): Promise<string> {
   const result = await generateFortuneWithMeta(input);
   return result.text;
@@ -183,12 +210,18 @@ export async function generateFortuneWithMeta(input: {
   cards?: TarotCard[];
   history?: HistoryMessage[];
   computed: FortuneComputationResult;
+  promptProfile?: SalesPromptProfile;
 }): Promise<FortuneGenerationResult> {
+  const promptProfile = resolvePromptProfile(input.promptProfile);
+  const useSalesPrompt = promptProfile === "sales_v2";
   const variationSeed = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const variationProfile = pickVariationProfile();
   const concernAnchor = buildConcernAnchor(input.concern);
   const variationInstruction = buildVariationInstruction(variationProfile, variationSeed, concernAnchor);
-  const fallback = personalizeFallback(buildFallbackFortune(input), variationProfile, concernAnchor);
+  const fallbackBase = useSalesPrompt
+    ? buildLoveFortuneSalesFallback({ concern: input.concern, computed: input.computed })
+    : buildFallbackFortune(input);
+  const fallback = personalizeFallback(fallbackBase, variationProfile, concernAnchor);
   const inputSummary = {
     mode: input.mode,
     depth: input.depth,
@@ -196,14 +229,15 @@ export async function generateFortuneWithMeta(input: {
     historyCount: input.history?.length ?? 0,
     cardsCount: input.cards?.length ?? 0,
     variationSeed,
-    promptProfile: useSalesPrompt ? "sales" : "default"
+    promptProfile
   };
 
   if (!client) {
     console.warn("[openai] OPENAI_API_KEY is empty. Returning fallback response.", inputSummary);
     return {
       text: fallback,
-      source: "openai-fallback-no-key"
+      source: "openai-fallback-no-key",
+      promptProfile
     };
   }
 
@@ -262,11 +296,14 @@ ${variationInstruction}`;
       console.warn("[openai] Empty response text from model. Returning fallback.", inputSummary);
       return {
         text: fallback,
-        source: "openai-fallback-empty"
+        source: "openai-fallback-empty",
+        promptProfile
       };
     }
 
-    const normalized = normalizeAiFortuneOutput(text, fallback);
+    const normalized = useSalesPrompt
+      ? normalizeLoveFortuneSalesOutput(dedupeConsecutiveLines(text), fallback)
+      : normalizeAiFortuneOutput(text, fallback);
     if (normalized === fallback && text !== fallback) {
       console.warn("[openai] Model output was replaced by fallback during normalization.", {
         ...inputSummary,
@@ -274,13 +311,15 @@ ${variationInstruction}`;
       });
       return {
         text: normalized,
-        source: "openai-fallback-normalized"
+        source: "openai-fallback-normalized",
+        promptProfile
       };
     }
 
     return {
       text: normalized,
-      source: "openai"
+      source: "openai",
+      promptProfile
     };
   } catch (error) {
     console.error("[openai] OpenAI generation failed. Returning fallback.", error);
@@ -299,6 +338,7 @@ ${variationInstruction}`;
     return {
       text: fallback,
       source: "openai-fallback-error",
+      promptProfile,
       errorDetail: {
         type: errorObject?.type ?? errorObject?.name ?? "OpenAIError",
         message: safeMessage,
