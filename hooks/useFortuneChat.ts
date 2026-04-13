@@ -38,6 +38,8 @@ function sleep(ms: number): Promise<void> {
 
 export type { ChatMessage, TarotCardForApi };
 const debugOpenAI = process.env.NEXT_PUBLIC_OPENAI_DEBUG === "1";
+const debugMarkerEnabled = process.env.NEXT_PUBLIC_FORTUNE_DEBUG === "1" || debugOpenAI;
+const bypassOpenAI = process.env.NEXT_PUBLIC_OPENAI_BYPASS === "1";
 
 export function useFortuneChat({
   accessToken,
@@ -170,6 +172,8 @@ export function useFortuneChat({
         const headers: HeadersInit = { "Content-Type": "application/json" };
         if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
         headers["x-debug-request-id"] = debugRequestId;
+        if (debugMarkerEnabled) headers["x-fortune-debug"] = "1";
+        if (bypassOpenAI) headers["x-openai-bypass"] = "1";
 
         const requestBody = {
             mode,
@@ -206,6 +210,9 @@ export function useFortuneChat({
         });
 
         const body = (await res.json().catch(() => null)) as FortuneCreateResponse | null;
+        if (debugOpenAI && body?.debug) {
+          console.log("[useFortuneChat] response debug", body.debug);
+        }
 
         if (!res.ok) {
           if (body?.code === "FREE_LIMIT_REACHED") {

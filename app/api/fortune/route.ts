@@ -1,15 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUserAccess } from "@/lib/access";
-import { requireAuthenticatedUser } from "@/lib/api-guards";
+import { assertOptionalAuthTokenIsValid } from "@/lib/api-guards";
 import { computeFortuneData } from "@/lib/fortune-logic";
 import { logFortune, refreshSessionUsage, syncSessionFreeLimit } from "@/lib/db";
-import { generateFortune } from "@/lib/openai";
+import { generateFortuneWithMeta, type FortuneResponseSource } from "@/lib/openai";
 import { getCostByDepth } from "@/lib/plans";
 import { canConsumeFreeQuota, consumeQuotaSafely, getUsageStatus } from "@/lib/quota";
 import { applySessionCookie, getOrCreateSession } from "@/lib/session";
 import { fortuneRequestSchema } from "@/lib/validation/fortune";
 
 const debugOpenAI = process.env.OPENAI_DEBUG === "1";
+const forceBypassOpenAI = process.env.FORTUNE_BYPASS_OPENAI === "1";
+const forceDebugMarker = process.env.FORTUNE_RESPONSE_DEBUG_MARKER === "1";
+
+function buildDebugMarker(debugRequestId: string, source: FortuneResponseSource | "bypass"): string {
+  return `FORTUNE_DEBUG::${source}::${debugRequestId}`;
+}
+
+function buildBypassFortuneResponse(input: {
+  mode: string;
+  depth: string;
+  concern: string;
+  debugRequestId: string;
+}): string {
+  const concernPreview = input.concern.slice(0, 60);
+  return [
+    "### デバッグ用固定レスポンス",
+    "OpenAI呼び出しを一時バイパスしています。",
+    `request_id: ${input.debugRequestId}`,
+    `mode: ${input.mode}`,
+    `depth: ${input.depth}`,
+    `concern: 「${concernPreview}」`
+  ].join("\n");
+}
 
 function summarizeIncomingPayload(payload: unknown) {
   if (!payload || typeof payload !== "object") {
@@ -39,10 +62,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const debugRequestId =
       request.headers.get("x-debug-request-id") ??
       `srv-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    const debugMarkerEnabled =
+      forceDebugMarker || debugOpenAI || request.headers.get("x-fortune-debug") === "1";
+    const bypassOpenAI = forceBypassOpenAI || request.headers.get("x-openai-bypass") === "1";
 
-    const auth = await requireAuthenticatedUser(request);
-    if ("response" in auth) {
-      return auth.response;
+    const authError = await assertOptionalAuthTokenIsValid(request);
+    if (authError) {
+      return authError.response;
     }
 
     const json = await request.json();
@@ -184,15 +210,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       history
     });
 
-    const aiResponse = await generateFortune({
-      type,
-      mode,
-      depth,
-      concern,
-      cards,
-      history,
-      computed
-    });
+    let responseSource: FortuneResponseSource | "bypass";
+    let rawResponse: string;
+    if (bypassOpenAI) {
+      responseSource = "bypass";
+      rawResponse = buildBypassFortuneResponse({ mode, depth, concern, debugRequestId });
+    } else {
+      const generated = await generateFortuneWithMeta({
+        type,
+        mode,
+        depth,
+        concern,
+        cards,
+        history,
+        computed
+      });
+      responseSource = generated.source;
+      rawResponse = generated.text;
+    }
+    const debugMarker = buildDebugMarker(debugRequestId, responseSource);
+    const aiResponse = debugMarkerEnabled ? `${rawResponse}\n\n${debugMarker}` : rawResponse;
 
     let fortuneId: string | null = null;
 
@@ -255,7 +292,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           selfZodiac: computed.self.zodiac?.sign ?? null,
           compatibilityScore: computed.compatibility?.totalScore ?? null
         },
-        computed
+        computed,
+        debug: debugMarkerEnabled
+          ? {
+              requestId: debugRequestId,
+              source: responseSource,
+              marker: debugMarker
+            }
+          : undefined
       },
       { status: 200 }
     );
@@ -265,6 +309,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     response.headers.set("Cache-Control", "no-store");
+    response.headers.set("x-debug-request-id", debugRequestId);
+    response.headers.set("x-fortune-response-source", responseSource);
+    if (debugMarkerEnabled) {
+      response.headers.set("x-fortune-debug-marker", debugMarker);
+    }
     return response;
   } catch (error) {
     console.error("POST /api/fortune failed", error);

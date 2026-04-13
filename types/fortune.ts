@@ -76,6 +76,17 @@ export type FortuneCreateResponse = {
     selfZodiac: string | null;
     compatibilityScore: number | null;
   };
+  debug?: {
+    requestId: string;
+    source:
+      | "openai"
+      | "openai-fallback-no-key"
+      | "openai-fallback-empty"
+      | "openai-fallback-normalized"
+      | "openai-fallback-error"
+      | "bypass";
+    marker: string;
+  };
   error?: string;
   code?: string;
 };

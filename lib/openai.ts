@@ -22,6 +22,18 @@ type TarotCard = {
 const client = env.OPENAI_API_KEY ? new OpenAI({ apiKey: env.OPENAI_API_KEY }) : null;
 const debugOpenAI = process.env.OPENAI_DEBUG === "1";
 
+export type FortuneResponseSource =
+  | "openai"
+  | "openai-fallback-no-key"
+  | "openai-fallback-empty"
+  | "openai-fallback-normalized"
+  | "openai-fallback-error";
+
+export type FortuneGenerationResult = {
+  text: string;
+  source: FortuneResponseSource;
+};
+
 type VariationProfile = {
   tone: string;
   lens: string;
@@ -114,6 +126,19 @@ export async function generateFortune(input: {
   history?: HistoryMessage[];
   computed: FortuneComputationResult;
 }): Promise<string> {
+  const result = await generateFortuneWithMeta(input);
+  return result.text;
+}
+
+export async function generateFortuneWithMeta(input: {
+  type?: FortuneType;
+  mode: FortuneMode;
+  depth: ResponseDepth;
+  concern: string;
+  cards?: TarotCard[];
+  history?: HistoryMessage[];
+  computed: FortuneComputationResult;
+}): Promise<FortuneGenerationResult> {
   const variationSeed = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const variationProfile = pickVariationProfile();
   const concernAnchor = buildConcernAnchor(input.concern);
@@ -130,7 +155,10 @@ export async function generateFortune(input: {
 
   if (!client) {
     console.warn("[openai] OPENAI_API_KEY is empty. Returning fallback response.", inputSummary);
-    return fallback;
+    return {
+      text: fallback,
+      source: "openai-fallback-no-key"
+    };
   }
 
   try {
@@ -173,7 +201,10 @@ ${variationInstruction}`;
     const text = extractResponseText(response);
     if (!text) {
       console.warn("[openai] Empty response text from model. Returning fallback.", inputSummary);
-      return fallback;
+      return {
+        text: fallback,
+        source: "openai-fallback-empty"
+      };
     }
 
     const normalized = normalizeAiFortuneOutput(text, fallback);
@@ -182,11 +213,21 @@ ${variationInstruction}`;
         ...inputSummary,
         modelTextLength: text.length
       });
+      return {
+        text: normalized,
+        source: "openai-fallback-normalized"
+      };
     }
 
-    return normalized;
+    return {
+      text: normalized,
+      source: "openai"
+    };
   } catch (error) {
     console.error("[openai] OpenAI generation failed. Returning fallback.", error);
-    return fallback;
+    return {
+      text: fallback,
+      source: "openai-fallback-error"
+    };
   }
 }
