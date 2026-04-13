@@ -49,6 +49,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         mode,
         depth,
         concernLength: concern.length,
+        concernPreview: concern.slice(0, 20),
         historyCount: history?.length ?? 0,
         cardsCount: cards?.length ?? 0,
         hasSelfBirthDate: Boolean(selfBirthDate),
