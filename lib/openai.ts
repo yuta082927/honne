@@ -2,6 +2,10 @@
 import { DEPTH_MAX_TOKENS, type FortuneMode, type FortuneType, type ResponseDepth } from "@/lib/constants";
 import { env } from "@/lib/env";
 import {
+  LOVE_FORTUNE_SALES_SYSTEM_PROMPT,
+  buildLoveFortuneSalesUserPrompt
+} from "@/lib/fortune/prompts/sales";
+import {
   buildFallbackFortune,
   buildSystemPrompt,
   buildUserPrompt,
@@ -21,6 +25,7 @@ type TarotCard = {
 
 const client = env.OPENAI_API_KEY ? new OpenAI({ apiKey: env.OPENAI_API_KEY }) : null;
 const debugOpenAI = process.env.OPENAI_DEBUG === "1";
+const useSalesPrompt = process.env.OPENAI_SALES_PROMPT !== "0";
 
 export type FortuneResponseSource =
   | "openai"
@@ -123,6 +128,40 @@ function extractResponseText(response: { output_text?: string | null; output?: u
   return segments.join("\n").trim();
 }
 
+function buildSalesCardsInfo(cards?: TarotCard[]): string {
+  if (!cards || cards.length === 0) return "なし";
+  return cards.map((card) => `- ${card.position}: ${card.name}`).join("\n");
+}
+
+function buildSalesSupplementalInfo(input: {
+  mode: FortuneMode;
+  depth: ResponseDepth;
+  history?: HistoryMessage[];
+  computed: FortuneComputationResult;
+}): string {
+  const lines: string[] = [`占術モード: ${input.mode}`, `深さ: ${input.depth}`];
+
+  if (input.computed.self.birthDate) lines.push(`生年月日: ${input.computed.self.birthDate}`);
+  if (input.computed.self.animal?.name) lines.push(`動物占い: ${input.computed.self.animal.name}`);
+  if (input.computed.self.western?.sun) lines.push(`太陽星座: ${input.computed.self.western.sun}`);
+  if (input.computed.partner?.western?.sun) lines.push(`相手の太陽星座: ${input.computed.partner.western.sun}`);
+  if (input.computed.compatibility?.totalScore != null) {
+    lines.push(`相性スコア: ${input.computed.compatibility.totalScore}`);
+  }
+
+  if (input.history && input.history.length > 0) {
+    lines.push("会話履歴（直近）:");
+    for (const message of input.history.slice(-6)) {
+      const role = message.role === "user" ? "ユーザー" : "AI";
+      lines.push(`- ${role}: ${message.content.slice(0, 120)}`);
+    }
+  } else {
+    lines.push("会話履歴: なし");
+  }
+
+  return lines.join("\n");
+}
+
 export async function generateFortune(input: {
   type?: FortuneType;
   mode: FortuneMode;
@@ -156,7 +195,8 @@ export async function generateFortuneWithMeta(input: {
     concernLength: input.concern.trim().length,
     historyCount: input.history?.length ?? 0,
     cardsCount: input.cards?.length ?? 0,
-    variationSeed
+    variationSeed,
+    promptProfile: useSalesPrompt ? "sales" : "default"
   };
 
   if (!client) {
@@ -168,16 +208,29 @@ export async function generateFortuneWithMeta(input: {
   }
 
   try {
-    const systemPromptBase = buildSystemPrompt({ mode: input.mode, type: input.type, depth: input.depth });
+    const systemPromptBase = useSalesPrompt
+      ? LOVE_FORTUNE_SALES_SYSTEM_PROMPT
+      : buildSystemPrompt({ mode: input.mode, type: input.type, depth: input.depth });
     const systemPrompt = `${systemPromptBase}\n\n${variationInstruction}`;
-    const userPromptBase = buildUserPrompt({
-      type: input.type,
-      mode: input.mode,
-      concern: input.concern,
-      cards: input.cards,
-      history: input.history,
-      computed: input.computed
-    });
+    const userPromptBase = useSalesPrompt
+      ? buildLoveFortuneSalesUserPrompt({
+          concern: input.concern,
+          cardsInfo: buildSalesCardsInfo(input.cards),
+          supplementalInfo: buildSalesSupplementalInfo({
+            mode: input.mode,
+            depth: input.depth,
+            history: input.history,
+            computed: input.computed
+          })
+        })
+      : buildUserPrompt({
+          type: input.type,
+          mode: input.mode,
+          concern: input.concern,
+          cards: input.cards,
+          history: input.history,
+          computed: input.computed
+        });
     const userPrompt = `${userPromptBase}
 
 ${variationInstruction}`;
