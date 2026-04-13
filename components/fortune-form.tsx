@@ -9,7 +9,7 @@ import { useUsage } from "@/hooks/useUsage";
 import { FortuneResponseCard } from "@/components/fortune-response-card";
 import { PremiumCta } from "@/components/premium-cta";
 import { RegisterCta } from "@/components/register-cta";
-import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 function buildUsageBadge(usage: ReturnType<typeof useUsage>["usage"], loading: boolean): string {
   if (loading) return "確認中...";
@@ -73,6 +73,144 @@ function pickTenTarotCards(): DeckCard[] {
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+const BIRTH_YEAR_MIN = 1900;
+const BIRTH_YEAR_MAX = new Date().getFullYear();
+const BIRTH_YEARS = Array.from({ length: BIRTH_YEAR_MAX - BIRTH_YEAR_MIN + 1 }, (_, index) =>
+  String(BIRTH_YEAR_MAX - index)
+);
+const BIRTH_MONTHS = Array.from({ length: 12 }, (_, index) => String(index + 1));
+
+function splitBirthDate(value: string): { year: string; month: string; day: string } {
+  if (!value) return { year: "", month: "", day: "" };
+  const [year = "", month = "", day = ""] = value.split("-");
+  return {
+    year,
+    month: month ? String(Number(month)) : "",
+    day: day ? String(Number(day)) : ""
+  };
+}
+
+function isValidBirthDate(year: string, month: string, day: string): boolean {
+  if (!year || !month || !day) return false;
+  const y = Number(year);
+  const m = Number(month);
+  const d = Number(day);
+  if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d)) return false;
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
+}
+
+function BirthDateSelect({
+  label,
+  value,
+  onChange,
+  disabled
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  disabled: boolean;
+}) {
+  const initial = useMemo(() => splitBirthDate(value), [value]);
+  const [year, setYear] = useState(initial.year);
+  const [month, setMonth] = useState(initial.month);
+  const [day, setDay] = useState(initial.day);
+
+  useEffect(() => {
+    const next = splitBirthDate(value);
+    setYear(next.year);
+    setMonth(next.month);
+    setDay(next.day);
+  }, [value]);
+
+  const maxDay = useMemo(() => {
+    if (!year || !month) return 31;
+    return new Date(Number(year), Number(month), 0).getDate();
+  }, [year, month]);
+
+  const availableDays = useMemo(
+    () => Array.from({ length: maxDay }, (_, index) => String(index + 1)),
+    [maxDay]
+  );
+
+  useEffect(() => {
+    if (!day) return;
+    if (Number(day) > maxDay) {
+      setDay("");
+    }
+  }, [day, maxDay]);
+
+  useEffect(() => {
+    if (!year || !month || !day) {
+      onChange("");
+      return;
+    }
+
+    const mm = month.padStart(2, "0");
+    const dd = day.padStart(2, "0");
+
+    if (isValidBirthDate(year, month, day)) {
+      onChange(`${year}-${mm}-${dd}`);
+      return;
+    }
+
+    onChange("");
+  }, [day, month, onChange, year]);
+
+  const hasInvalidDate = Boolean(year && month && day) && !isValidBirthDate(year, month, day);
+
+  return (
+    <div className="space-y-1">
+      <span className="text-[11px] text-starsub">{label}</span>
+      <div className="grid grid-cols-3 gap-2">
+        <select
+          value={year}
+          onChange={(event) => setYear(event.target.value)}
+          className="w-full rounded-lg px-2 py-1.5 text-xs text-star outline-none"
+          style={{ border: "1px solid rgba(168,139,250,0.25)", background: "#1a1030" }}
+          disabled={disabled}
+        >
+          <option value="" style={{ background: "#1a1030" }}>年</option>
+          {BIRTH_YEARS.map((item) => (
+            <option key={item} value={item} style={{ background: "#1a1030" }}>
+              {item}
+            </option>
+          ))}
+        </select>
+        <select
+          value={month}
+          onChange={(event) => setMonth(event.target.value)}
+          className="w-full rounded-lg px-2 py-1.5 text-xs text-star outline-none"
+          style={{ border: "1px solid rgba(168,139,250,0.25)", background: "#1a1030" }}
+          disabled={disabled}
+        >
+          <option value="" style={{ background: "#1a1030" }}>月</option>
+          {BIRTH_MONTHS.map((item) => (
+            <option key={item} value={item} style={{ background: "#1a1030" }}>
+              {item}
+            </option>
+          ))}
+        </select>
+        <select
+          value={day}
+          onChange={(event) => setDay(event.target.value)}
+          className="w-full rounded-lg px-2 py-1.5 text-xs text-star outline-none"
+          style={{ border: "1px solid rgba(168,139,250,0.25)", background: "#1a1030" }}
+          disabled={disabled}
+        >
+          <option value="" style={{ background: "#1a1030" }}>日</option>
+          {availableDays.map((item) => (
+            <option key={item} value={item} style={{ background: "#1a1030" }}>
+              {item}
+            </option>
+          ))}
+        </select>
+      </div>
+      {hasInvalidDate ? <p className="text-[11px] text-red-400">存在しない日付です。</p> : null}
+    </div>
+  );
 }
 
 export function FortuneForm() {
@@ -481,17 +619,12 @@ export function FortuneForm() {
             >
               <div className="overflow-hidden">
                 <div className="grid grid-cols-1 gap-2 rounded-xl p-2 sm:grid-cols-3" style={{ border: "1px solid rgba(168,139,250,0.2)", background: "rgba(124,58,237,0.08)" }}>
-                  <label className="space-y-1">
-                    <span className="text-[11px] text-starsub">自分の生年月日（必須）</span>
-                    <input
-                      type="date"
-                      value={birthForm.data.selfBirthDate}
-                      onChange={(event) => birthForm.setSelfBirthDate(event.target.value)}
-                      className="w-full rounded-lg px-2 py-1.5 text-xs text-star outline-none"
-                      style={{ border: "1px solid rgba(168,139,250,0.25)", background: "rgba(255,255,255,0.05)" }}
-                      disabled={submitting}
-                    />
-                  </label>
+                  <BirthDateSelect
+                    label="自分の生年月日（必須）"
+                    value={birthForm.data.selfBirthDate}
+                    onChange={birthForm.setSelfBirthDate}
+                    disabled={submitting}
+                  />
                   {showBirthTime && (
                     <label className="space-y-1">
                       <span className="text-[11px] text-starsub">
@@ -524,19 +657,12 @@ export function FortuneForm() {
                   )}
                   {showPartnerFields && (
                     <>
-                      <label className="space-y-1">
-                        <span className="text-[11px] text-starsub">
-                          相手の生年月日{mode === "相性" ? "（推奨）" : "（任意）"}
-                        </span>
-                        <input
-                          type="date"
-                          value={birthForm.data.partnerBirthDate}
-                          onChange={(event) => birthForm.setPartnerBirthDate(event.target.value)}
-                          className="w-full rounded-lg px-2 py-1.5 text-xs text-star outline-none"
-                          style={{ border: "1px solid rgba(168,139,250,0.25)", background: "rgba(255,255,255,0.05)" }}
-                          disabled={submitting}
-                        />
-                      </label>
+                      <BirthDateSelect
+                        label={`相手の生年月日${mode === "相性" ? "（推奨）" : "（任意）"}`}
+                        value={birthForm.data.partnerBirthDate}
+                        onChange={birthForm.setPartnerBirthDate}
+                        disabled={submitting}
+                      />
                       <label className="space-y-1">
                         <span className="text-[11px] text-starsub">相手の出生時刻（任意）</span>
                         <input

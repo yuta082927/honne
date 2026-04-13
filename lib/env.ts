@@ -8,7 +8,10 @@ const envSchema = z.object({
   OPENAI_MODEL: z.string().default("gpt-4o-mini"),
   SESSION_COOKIE_NAME: z.string().default("ai_uranai_sid"),
   SESSION_COOKIE_SECRET: z.string().min(32, "SESSION_COOKIE_SECRET must be at least 32 characters").optional(),
-  FREE_USAGE_LIMIT: z.coerce.number().int().min(1).max(200).default(3)
+  FREE_USAGE_LIMIT: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z.coerce.number().int().min(1).max(200).default(3)
+  )
 });
 
 const parsed = envSchema.safeParse(process.env);

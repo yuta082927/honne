@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { POST as createFortune } from "@/app/api/fortune/route";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const { POST: createFortune } = await import("@/app/api/fortune/route");
   return createFortune(request);
 }
-
