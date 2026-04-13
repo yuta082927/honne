@@ -45,9 +45,15 @@ export function ensureStructuredSections(
   // 空なら fallback
   if (!normalized) return fallback;
 
-  // 100文字以上あれば有効な応答とみなす
-  // タロット・総合は散文形式のためキーワードチェックをしない
-  if (normalized.length >= 100) return normalized;
+  // 見出し構造がある場合は短文でも有効とみなす
+  const hasStructuredHeading =
+    normalized.includes("### 要約") ||
+    normalized.includes("### あなたの恋愛の核") ||
+    normalized.includes("### 今日の行動");
+  if (hasStructuredHeading) return normalized;
+
+  // 散文でも40文字以上あれば有効とみなす（100文字閾値だとfallback化しやすい）
+  if (normalized.length >= 40) return normalized;
 
   return fallback;
 }
