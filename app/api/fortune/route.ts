@@ -9,6 +9,8 @@ import { canConsumeFreeQuota, consumeQuotaSafely, getUsageStatus } from "@/lib/q
 import { applySessionCookie, getOrCreateSession } from "@/lib/session";
 import { fortuneRequestSchema } from "@/lib/validation/fortune";
 
+const debugOpenAI = process.env.OPENAI_DEBUG === "1";
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const auth = await requireAuthenticatedUser(request);
@@ -41,6 +43,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       gender,
       cards
     } = parsed.data;
+
+    if (debugOpenAI) {
+      console.log("[POST /api/fortune] payload summary", {
+        mode,
+        depth,
+        concernLength: concern.length,
+        historyCount: history?.length ?? 0,
+        cardsCount: cards?.length ?? 0,
+        hasSelfBirthDate: Boolean(selfBirthDate),
+        hasPartnerBirthDate: Boolean(partnerBirthDate)
+      });
+    }
+
     const access = await getCurrentUserAccess(request);
     const cost = getCostByDepth(depth, access.deepCost);
 
