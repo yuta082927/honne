@@ -11,17 +11,62 @@ import { fortuneRequestSchema } from "@/lib/validation/fortune";
 
 const debugOpenAI = process.env.OPENAI_DEBUG === "1";
 
+function summarizeIncomingPayload(payload: unknown) {
+  if (!payload || typeof payload !== "object") {
+    return { kind: typeof payload };
+  }
+
+  const record = payload as Record<string, unknown>;
+  const concern = typeof record.concern === "string" ? record.concern : "";
+  const history = Array.isArray(record.history) ? record.history : [];
+  const cards = Array.isArray(record.cards) ? record.cards : [];
+
+  return {
+    keys: Object.keys(record),
+    mode: typeof record.mode === "string" ? record.mode : null,
+    depth: typeof record.depth === "string" ? record.depth : null,
+    concernLength: concern.length,
+    concernPreview: concern.slice(0, 20),
+    historyCount: history.length,
+    cardsCount: cards.length,
+    hasSelfBirthDate: typeof record.selfBirthDate === "string" && record.selfBirthDate.length > 0,
+    hasPartnerBirthDate: typeof record.partnerBirthDate === "string" && record.partnerBirthDate.length > 0
+  };
+}
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const debugRequestId =
+      request.headers.get("x-debug-request-id") ??
+      `srv-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+
     const auth = await requireAuthenticatedUser(request);
     if ("response" in auth) {
       return auth.response;
     }
 
     const json = await request.json();
+    if (debugOpenAI) {
+      console.log("[POST /api/fortune] raw payload", {
+        debugRequestId,
+        ...summarizeIncomingPayload(json)
+      });
+    }
+
     const parsed = fortuneRequestSchema.safeParse(json);
 
     if (!parsed.success) {
+      if (debugOpenAI) {
+        console.warn("[POST /api/fortune] payload validation failed", {
+          debugRequestId,
+          issues: parsed.error.issues.map((issue) => ({
+            path: issue.path.join("."),
+            message: issue.message
+          })),
+          ...summarizeIncomingPayload(json)
+        });
+      }
+
       return NextResponse.json(
         { error: parsed.error.issues[0]?.message ?? "Invalid request payload." },
         { status: 400 }
@@ -46,6 +91,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     if (debugOpenAI) {
       console.log("[POST /api/fortune] payload summary", {
+        debugRequestId,
         mode,
         depth,
         concernLength: concern.length,

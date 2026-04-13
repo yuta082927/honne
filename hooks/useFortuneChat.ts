@@ -37,6 +37,7 @@ function sleep(ms: number): Promise<void> {
 }
 
 export type { ChatMessage, TarotCardForApi };
+const debugOpenAI = process.env.NEXT_PUBLIC_OPENAI_DEBUG === "1";
 
 export function useFortuneChat({
   accessToken,
@@ -165,8 +166,10 @@ export function useFortuneChat({
       setMessages((prev) => [...prev, userMessage, pendingMessage]);
 
       try {
+        const debugRequestId = `web-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
         const headers: HeadersInit = { "Content-Type": "application/json" };
         if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+        headers["x-debug-request-id"] = debugRequestId;
 
         const requestBody = {
             mode,
@@ -182,25 +185,24 @@ export function useFortuneChat({
             gender: birthData.gender || undefined,
             history: historyForApi
           };
-        console.log("[useFortuneChat] requestBody:", requestBody);
+        if (debugOpenAI) {
+          console.log("[useFortuneChat] request payload", {
+            debugRequestId,
+            mode: requestBody.mode,
+            depth: requestBody.depth,
+            concernLength: requestBody.concern.length,
+            concernPreview: requestBody.concern.slice(0, 20),
+            historyCount: requestBody.history?.length ?? 0,
+            cardsCount: requestBody.cards?.length ?? 0,
+            hasSelfBirthDate: Boolean(requestBody.selfBirthDate),
+            hasPartnerBirthDate: Boolean(requestBody.partnerBirthDate)
+          });
+        }
 
         const res = await fetch("/api/fortune", {
           method: "POST",
           headers,
-          body: JSON.stringify({
-            mode,
-            depth,
-            concern: normalizedConcern,
-            cards: cards?.length ? cards : undefined,
-            selfBirthDate: birthData.selfBirthDate || undefined,
-            selfBirthTime: birthData.selfBirthTime || undefined,
-            selfBirthPlace: birthData.selfBirthPlace || undefined,
-            partnerBirthDate: birthData.partnerBirthDate || undefined,
-            partnerBirthTime: birthData.partnerBirthTime || undefined,
-            partnerBirthPlace: birthData.partnerBirthPlace || undefined,
-            gender: birthData.gender || undefined,
-            history: historyForApi
-          })
+          body: JSON.stringify(requestBody)
         });
 
         const body = (await res.json().catch(() => null)) as FortuneCreateResponse | null;
