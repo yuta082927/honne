@@ -60,10 +60,10 @@ function FadeUp({
 // ─────────────────────────────────────────────────────────
 // CTA ボタン（共通）
 // ─────────────────────────────────────────────────────────
-function CtaButton({ label = "✦ AIに正直に話してみる →", pulse = true }: { label?: string; pulse?: boolean }) {
+function CtaButton({ label = "✦ 今すぐ答えを出す（無料）", pulse = true }: { label?: string; pulse?: boolean }) {
   return (
     <div className="inline-flex flex-col items-center gap-2">
-      <p style={{ color: "#9ca3af", fontSize: "12px", margin: 0 }}>登録不要・1分で完了</p>
+      <p style={{ color: "#9ca3af", fontSize: "12px", margin: 0 }}>登録不要・1分で本音を整理</p>
       <Link
         href="/chat"
         className={`cta-ring inline-flex items-center justify-center rounded-full bg-gradient-to-r from-violet to-violet-soft font-bold text-white shadow-lg transition hover:opacity-90 ${
@@ -81,12 +81,6 @@ function CtaButton({ label = "✦ AIに正直に話してみる →", pulse = tr
 // Section 1: ヒーロー
 // ─────────────────────────────────────────────────────────
 function HeroSection() {
-  const [sparkle, setSparkle] = useState(false);
-  function handleCrystalClick() {
-    setSparkle(true);
-    setTimeout(() => setSparkle(false), 420);
-  }
-
   return (
     <section className="relative min-h-screen overflow-hidden bg-void px-4 pb-24 pt-20 sm:px-8">
       {/* 星50個 */}
@@ -110,15 +104,15 @@ function HeroSection() {
         <div>
           {/* h1: shimmer gradient */}
           <h1 className="shimmer-text font-serif text-3xl font-bold leading-tight sm:text-5xl">
-            深夜、彼のことを考えすぎて<br className="hidden sm:block" />
-            眠れない夜、ありませんか？
+            相手の気持ちを占うより、<br className="hidden sm:block" />
+            あなたの次の一手を決める。
           </h1>
 
           <p className="mt-5 text-lg sm:text-xl" style={{ color: "#e2e8f0" }}>
-            その気持ち、AIが正直に向き合います。
+            ホンネは、恋愛の「感情整理」と「意思決定」を支えるAIです。
           </p>
           <p className="mt-2 text-base sm:text-lg text-starsub">
-            答えが出なくていい。まず整理しよう。
+            相手の気持ちは断言しません。あなたがどう動くべきかを決めます。
           </p>
 
           <div
@@ -129,9 +123,9 @@ function HeroSection() {
             }}
           >
             <p className="text-sm leading-relaxed text-star">
-              ホンネはAIです。<br />
-              相手の気持ちを断言することはしません。<br />
-              あなたが次にどう動くべきか、正直に伝えます。
+              AIだから、感情に引っ張られずに整理できます。<br />
+              AIだから、24時間いつでも相談できます。<br />
+              AIだから、曖昧な優しさではなく行動を返します。
             </p>
           </div>
 
@@ -142,56 +136,45 @@ function HeroSection() {
               border: "1px solid rgba(168,139,250,0.3)"
             }}
           >
-            <p className="text-sm font-semibold text-star">鑑定後、あなたが持ち帰るもの：</p>
+            <p className="text-sm font-semibold text-star">1分後に決まること</p>
             <ul className="mt-2 space-y-1 text-sm text-starsub">
-              <li>・自分の気持ちの整理</li>
-              <li>・今週やるべきこと1つ</li>
-              <li>・前に進むための視点</li>
+              <li>・LINEするか、今日はやめるか</li>
+              <li>・追うか、距離を置くか</li>
+              <li>・今週やるべき一歩</li>
             </ul>
           </div>
 
           <div className="mt-8">
-            <CtaButton />
+            <CtaButton label="✦ もう悩むのをやめる" />
           </div>
         </div>
 
-        {/* 右: 🔮 + orbit rings */}
+        {/* 右: 会話密度を上げた意思決定カード */}
         <div className="flex items-center justify-center">
-          <div className="relative flex h-56 w-56 items-center justify-center">
-            {/* 外側 orbit ring (4s, 逆回転) */}
-            <div
-              className="absolute h-56 w-56 animate-orbit rounded-full"
-              style={{ border: "1px dashed rgba(168,139,250,0.25)", animationDuration: "4s", animationDirection: "reverse" }}
-            />
-            {/* 内側 orbit ring (2s) */}
-            <div
-              className="absolute h-40 w-40 animate-orbit rounded-full"
-              style={{ border: "1.5px dashed rgba(168,139,250,0.45)", animationDuration: "2s" }}
-            />
-            {/* Orbital ✦ star 1 (3s, 時計回り, r=74px) */}
-            <div className="absolute animate-orbit" style={{ width: "148px", height: "148px", animationDuration: "3s" }}>
-              <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 text-[11px]" style={{ color: "#c4b5fd", opacity: 0.9 }}>✦</span>
+          <div
+            className="w-full max-w-md rounded-2xl p-5"
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(168,139,250,0.28)",
+              boxShadow: "0 0 36px rgba(124,58,237,0.18)"
+            }}
+          >
+            <p className="text-xs tracking-[0.14em] text-violet-glow">TONIGHT DECISION</p>
+            <div className="mt-3 space-y-3">
+              <div className="rounded-xl p-3 text-sm text-starsub" style={{ background: "rgba(13,10,26,0.7)" }}>
+                「既読はつくけど返信が遅い。送っていいのかな…」
+              </div>
+              <div className="rounded-xl p-3 text-sm text-star" style={{ background: "rgba(124,58,237,0.18)", border: "1px solid rgba(168,139,250,0.35)" }}>
+                今夜は送らない。明日19:30に短文で1通だけ送る。
+                <br />
+                文面: 「今週どこかで10分だけ話せる？」
+              </div>
             </div>
-            {/* Orbital ✦ star 2 (5s, 逆回転, r=98px) */}
-            <div className="absolute animate-orbit" style={{ width: "196px", height: "196px", animationDuration: "5s", animationDirection: "reverse" }}>
-              <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 text-[10px]" style={{ color: "#a78bfa", opacity: 0.7 }}>✦</span>
+            <div className="mt-4 grid grid-cols-3 gap-2 text-center text-[11px] text-starsub">
+              <div className="rounded-lg py-2" style={{ background: "rgba(255,255,255,0.04)" }}>感情整理</div>
+              <div className="rounded-lg py-2" style={{ background: "rgba(255,255,255,0.04)" }}>判断</div>
+              <div className="rounded-lg py-2" style={{ background: "rgba(255,255,255,0.04)" }}>行動</div>
             </div>
-            {/* Orbital ✦ star 3 (7s, 時計回り, r=60px) */}
-            <div className="absolute animate-orbit" style={{ width: "120px", height: "120px", animationDuration: "7s" }}>
-              <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 text-[9px]" style={{ color: "#c4b5fd", opacity: 0.6 }}>✦</span>
-            </div>
-            {/* 水晶玉 */}
-            <span
-              onClick={handleCrystalClick}
-              className={`select-none cursor-pointer ${sparkle ? "crystal-sparkle" : "animate-float-spin"}`}
-              style={{
-                fontSize: "96px",
-                lineHeight: 1,
-                filter: "drop-shadow(0 0 30px rgba(168,139,250,0.8))"
-              }}
-            >
-              🔮
-            </span>
           </div>
         </div>
       </div>
@@ -203,9 +186,10 @@ function HeroSection() {
 // Section 2: 問題提起
 // ─────────────────────────────────────────────────────────
 const PAINS = [
-  "自分の状況をちゃんと理解してもらえなかった",
-  "誰かに正直に話せる場所がなかった",
-  "モヤモヤしたまま終わってしまった"
+  "LINEを送るかどうかで1時間止まっている",
+  "既読はつくのに、返事が来ない理由がわからない",
+  "期待していいのか、諦めるべきか判断できない",
+  "会えたのに距離が縮まらず、疲れてしまった"
 ];
 
 function PainSection() {
@@ -214,7 +198,7 @@ function PainSection() {
       <div className="mx-auto max-w-3xl">
         <FadeUp>
           <h2 className="font-serif text-2xl font-bold text-star sm:text-3xl">
-            こんな経験、ありませんか？
+            こんな夜、止まりませんか？
           </h2>
         </FadeUp>
         <div className="mt-8 space-y-4">
@@ -238,24 +222,102 @@ function PainSection() {
 }
 
 // ─────────────────────────────────────────────────────────
-// Section 3: ザイガルニック体験
+// Section 3: 差別化
+// ─────────────────────────────────────────────────────────
+const DIFFERENCE_POINTS = [
+  {
+    title: "相手の気持ちは断言しない",
+    desc: "「好きです」などの断定で期待を煽りません。現時点で判断できる材料だけを扱います。"
+  },
+  {
+    title: "不安を煽らない",
+    desc: "続きを読ませるための恐怖訴求はしません。必要な情報をその場で出し切ります。"
+  },
+  {
+    title: "行動だけにフォーカス",
+    desc: "共感だけで終わらせず、「今週やるべきこと」を具体的に決めます。"
+  },
+  {
+    title: "AIだから冷静に整理できる",
+    desc: "感情に流されず、同じ悩みをいつでも同じ基準で見直せます。"
+  }
+];
+
+function DifferenceSection() {
+  return (
+    <section className="bg-void px-4 py-20 sm:px-8">
+      <div className="mx-auto max-w-4xl">
+        <FadeUp>
+          <h2 className="font-serif text-2xl font-bold text-star sm:text-3xl">
+            ホンネは“当てる占い”ではありません
+          </h2>
+          <p className="mt-2 text-sm text-starsub">曖昧な優しさではなく、判断と行動に変えるサービスです。</p>
+        </FadeUp>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          {DIFFERENCE_POINTS.map((item, i) => (
+            <FadeUp key={item.title} delay={i * 100}>
+              <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(168,139,250,0.24)" }}>
+                <p className="text-sm font-semibold text-star">{item.title}</p>
+                <p className="mt-2 text-sm leading-relaxed text-starsub">{item.desc}</p>
+              </div>
+            </FadeUp>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────
+// Section 4: ベネフィット
+// ─────────────────────────────────────────────────────────
+const BENEFITS = [
+  "連絡するか、今日はやめるか決められる",
+  "続けるか終わらせるか判断できる",
+  "自分が本当に求めている関係がわかる",
+  "今週の一歩が具体的に決まる"
+];
+
+function BenefitSection() {
+  return (
+    <section className="px-4 py-20 sm:px-8" style={{ background: "rgba(124,58,237,0.1)" }}>
+      <div className="mx-auto max-w-3xl">
+        <FadeUp>
+          <h2 className="font-serif text-2xl font-bold text-star sm:text-3xl">この相談で得られること</h2>
+        </FadeUp>
+        <div className="mt-8 space-y-3">
+          {BENEFITS.map((text, i) => (
+            <FadeUp key={text} delay={i * 90}>
+              <div className="rounded-xl px-4 py-3 text-sm text-star" style={{ background: "rgba(13,10,26,0.65)", border: "1px solid rgba(168,139,250,0.25)" }}>
+                {text}
+              </div>
+            </FadeUp>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────
+// Section 5: 入口診断
 // ─────────────────────────────────────────────────────────
 type PersonalityKey = "intuitive" | "analytical" | "emotional";
 const PERSONALITIES: Record<PersonalityKey, { label: string; preview: string }> = {
   intuitive: {
     label: "直感型",
     preview:
-      "あなたは【直感型】。感情の波が大きく、相手の小さな変化にも敏感に気づく繊細さを持っています。彼との相性は…"
+      "あなたは【直感型】。相手の小さな反応にも敏感で、期待と不安が揺れやすいタイプです。"
   },
   analytical: {
     label: "分析型",
     preview:
-      "あなたは【分析型】。物事を深く考えてから動く慎重派。相手の言葉の裏を読みすぎてしまう傾向があります。彼との相性は…"
+      "あなたは【分析型】。言葉の意図を深く読み取り、慎重に動くタイプです。考えすぎで動けなくなることがあります。"
   },
   emotional: {
     label: "感情型",
     preview:
-      "あなたは【感情型】。一度好きになると全力で愛情を注ぐ情熱家。想いの強さが時に空回りすることも。彼との相性は…"
+      "あなたは【感情型】。好きになるとまっすぐ行動できるタイプです。反応がない時に自己否定へ傾きやすい面があります。"
   }
 };
 
@@ -283,9 +345,9 @@ function ZygarnikSection() {
       <div className="mx-auto max-w-2xl">
         <FadeUp>
           <h2 className="font-serif text-2xl font-bold text-star sm:text-3xl">
-            あなたと彼の相性、少しだけ見てみましょう
+            まずは、あなたの恋愛タイプを30秒で確認
           </h2>
-          <p className="mt-3 text-sm text-starsub">生まれた月と日だけで、あなたのタイプがわかります。</p>
+          <p className="mt-3 text-sm text-starsub">なぜ迷うのかが分かると、判断は一気に楽になります。</p>
         </FadeUp>
 
         <FadeUp delay={100}>
@@ -355,7 +417,7 @@ function ZygarnikSection() {
               href="/chat"
               className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-violet-glow hover:underline"
             >
-              ...続きはAIに正直に話してみる →
+              このタイプで相談を始める →
             </Link>
           </div>
         )}
@@ -365,7 +427,7 @@ function ZygarnikSection() {
 }
 
 // ─────────────────────────────────────────────────────────
-// Section 4: 損失回避CTA
+// Section 6: 行動CTA
 // ─────────────────────────────────────────────────────────
 function LossCTASection() {
   return (
@@ -373,11 +435,11 @@ function LossCTASection() {
       <FadeUp>
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-serif text-2xl font-bold leading-snug text-star sm:text-3xl">
-            今夜、自分の気持ちを整理してみませんか？
+            迷い続けるより、今夜ここで決める。
           </h2>
-          <p className="mt-4 text-base text-starsub">AIなら今すぐ、正直に答えます。</p>
+          <p className="mt-4 text-base text-starsub">1分で本音を整理して、次の一歩を明確にしましょう。</p>
           <div className="mt-8">
-            <CtaButton />
+            <CtaButton label="✦ 1分で本音を整理する" />
           </div>
         </div>
       </FadeUp>
@@ -386,20 +448,20 @@ function LossCTASection() {
 }
 
 // ─────────────────────────────────────────────────────────
-// Section 5: 社会的証明
+// Section 7: 社会的証明
 // ─────────────────────────────────────────────────────────
 const REVIEWS = [
   {
     name: "さき",
     age: "26歳・東京",
-    text: "復縁を諦めかけていたとき、AIに相談したら自分の気持ちが整理できました。3日後に自分から連絡できて、今は前より良い関係になれています。",
+    text: "『送るか迷ったら送らない』と決められたのが大きかったです。勢いLINEをやめたら、逆に会話が戻りました。",
     initials: "さ",
     avatarBg: "#3C3489"
   },
   {
     name: "みく",
     age: "23歳・大阪",
-    text: "片思いで悩んで夜も眠れなかったけど、AIがちゃんと向き合ってくれて気持ちが整理できた。ずっとモヤモヤしてたのが、スッと前に進めた感じがした。",
+    text: "復縁を追い続けるのをやめる決断ができました。つらいけど、やっと自分の生活に戻れています。",
     initials: "み",
     avatarBg: "#553C9A"
   }
@@ -410,7 +472,7 @@ function SocialProofSection() {
     <section className="bg-void px-4 py-20 sm:px-8">
       <div className="mx-auto max-w-4xl">
         <FadeUp>
-          <h2 className="font-serif text-2xl font-bold text-star sm:text-3xl">リアルな声</h2>
+          <h2 className="font-serif text-2xl font-bold text-star sm:text-3xl">行動が変わった声</h2>
         </FadeUp>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -449,16 +511,13 @@ function SocialProofSection() {
 }
 
 // ─────────────────────────────────────────────────────────
-// Section 6: 対応している占術
+// Section 8: 解決できる理由
 // ─────────────────────────────────────────────────────────
 const FORTUNE_TYPES = [
-  { icon: "✦", title: "総合", desc: "全占術を組み合わせた総合鑑定", comingSoon: false },
-  { icon: "🐯", title: "動物占い", desc: "生年月日から60種の動物で性格・相性を分析", comingSoon: false },
-  { icon: "⭐", title: "西洋占星術", desc: "12星座と天体の動きで運勢・性格を読む", comingSoon: false },
-  { icon: "☯", title: "東洋系（算命学・四柱推命）", desc: "生年月日時から命式を算出", comingSoon: false },
-  { icon: "🃏", title: "タロット", desc: "78枚のカードで現在・未来・深層心理を読む", comingSoon: false },
-  { icon: "💫", title: "相性占い", desc: "複数の占術を掛け合わせた本格相性鑑定", comingSoon: false },
-  { icon: "＋", title: "近日追加予定", desc: "さらに多くの占術を順次実装中", comingSoon: true }
+  { icon: "✦", title: "スピリチュアル層", desc: "感情の流れを短く可視化し、混乱を落ち着かせる", comingSoon: false },
+  { icon: "🧠", title: "心理学層", desc: "なぜ迷うかを言語化し、思考の偏りを整える", comingSoon: false },
+  { icon: "🪜", title: "コーチング層", desc: "今週やることを1つに絞り、行動へ落とす", comingSoon: false },
+  { icon: "🔍", title: "恋愛タイプ分析", desc: "悩み方の癖と、彼とのズレを入口で把握できる", comingSoon: false }
 ];
 
 function FortuneTypesSection() {
@@ -466,38 +525,23 @@ function FortuneTypesSection() {
     <section className="bg-void px-4 py-20 sm:px-8">
       <div className="mx-auto max-w-4xl">
         <FadeUp>
-          <h2 className="font-serif text-2xl font-bold text-star sm:text-3xl">対応している占術</h2>
-          <p className="mt-2 text-sm text-starsub">順次拡充予定。あなたの悩みに合った占術で鑑定します。</p>
+          <h2 className="font-serif text-2xl font-bold text-star sm:text-3xl">なぜ、結論まで進めるのか</h2>
+          <p className="mt-2 text-sm text-starsub">三層構造で「わかる」を「決められる」に変えます。</p>
         </FadeUp>
 
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
           {FORTUNE_TYPES.map((ft, i) => (
             <FadeUp key={i} delay={i * 80}>
               <div
                 className="group h-full rounded-xl p-4 transition-all duration-300"
-                style={
-                  ft.comingSoon
-                    ? {
-                        background: "rgba(255,255,255,0.02)",
-                        border: "1px dashed rgba(168,139,250,0.3)",
-                        opacity: 0.5
-                      }
-                    : {
-                        background: "rgba(255,255,255,0.05)",
-                        border: "1px solid rgba(168,139,250,0.3)"
-                      }
-                }
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(168,139,250,0.3)" }}
                 onMouseEnter={(e) => {
-                  if (!ft.comingSoon) {
-                    (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
-                    (e.currentTarget as HTMLElement).style.borderColor = "rgba(168,139,250,0.7)";
-                  }
+                  (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
+                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(168,139,250,0.7)";
                 }}
                 onMouseLeave={(e) => {
                   (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-                  (e.currentTarget as HTMLElement).style.borderColor = ft.comingSoon
-                    ? "rgba(168,139,250,0.3)"
-                    : "rgba(168,139,250,0.3)";
+                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(168,139,250,0.3)";
                 }}
               >
                 <span style={{ fontSize: "20px", lineHeight: 1, display: "block", marginBottom: "8px" }}>
@@ -515,7 +559,7 @@ function FortuneTypesSection() {
 }
 
 // ─────────────────────────────────────────────────────────
-// Section 7: 最終CTA
+// Section 9: 最終CTA
 // ─────────────────────────────────────────────────────────
 function FinalCTASection() {
   return (
@@ -523,12 +567,12 @@ function FinalCTASection() {
       <FadeUp>
         <div className="mx-auto max-w-xl text-center">
           <p className="shimmer-text font-serif text-2xl font-bold leading-loose sm:text-3xl">
-            AIです。だから安い。<br />
-            だから正直。<br />
-            だから24時間。
+            迷いを引き延ばさない。<br />
+            今夜、答えを出す。
           </p>
+          <p className="mt-4 text-sm text-starsub">AIです。だから安い。だから正直。だから24時間。</p>
           <div className="mt-10">
-            <CtaButton />
+            <CtaButton label="✦ 今すぐ答えを出す（無料）" />
           </div>
         </div>
       </FadeUp>
@@ -590,13 +634,15 @@ export function LandingPage() {
         </div>
       </nav>
 
-      {/* ── 6セクション ──────────────────────────────────── */}
+      {/* ── LPストーリー ──────────────────────────────────── */}
       <HeroSection />
       <PainSection />
-      <ZygarnikSection />
-      <LossCTASection />
+      <DifferenceSection />
+      <BenefitSection />
       <SocialProofSection />
+      <ZygarnikSection />
       <FortuneTypesSection />
+      <LossCTASection />
       <FinalCTASection />
     </div>
   );
