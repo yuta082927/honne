@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { FortuneResponseCard } from "@/components/fortune-response-card";
+import { LegalNotice } from "@/components/legal-notice";
 import { PremiumCta } from "@/components/premium-cta";
 import { RegisterCta } from "@/components/register-cta";
 import { DEPTH_COST, type ResponseDepth } from "@/lib/constants";
@@ -157,6 +158,10 @@ export function ResultView({ fortuneId }: { fortuneId: string }) {
                 }}
                 canSelectDeep={data.unlimited || data.remaining >= (data.deepCost ?? DEPTH_COST["ディープ"])}
               />
+            </div>
+
+            <div className="mt-4">
+              <LegalNotice showLinks />
             </div>
 
             {!authUser ? (

@@ -226,6 +226,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       responseSource = "bypass";
       rawResponse = buildBypassFortuneResponse({ mode, depth, concern, debugRequestId });
     } else {
+      const resolvedPromptProfile =
+        depth === "ディープ"
+          ? requestedPromptProfile === "default"
+            ? "default"
+            : "sales_v2"
+          : "default";
       const generated = await generateFortuneWithMeta({
         type,
         mode,
@@ -234,7 +240,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         cards,
         history,
         computed,
-        promptProfile: requestedPromptProfile === "default" ? "default" : "sales_v2"
+        promptProfile: resolvedPromptProfile
       });
       responseSource = generated.source;
       rawResponse = generated.text;
@@ -245,6 +251,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const aiResponse = debugMarkerEnabled ? `${rawResponse}\n\n${debugMarker}` : rawResponse;
 
     let fortuneId: string | null = null;
+    const shouldPersistHistory = Boolean(access.userId) && access.plan === "premium";
 
     try {
       const log = await logFortune({
@@ -275,7 +282,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           cards
         },
         analysisPayload: computed,
-        userId: access.userId
+        userId: shouldPersistHistory ? access.userId : null
       });
       fortuneId = log.id;
     } catch (logError) {

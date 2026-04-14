@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 
@@ -60,7 +60,7 @@ function FadeUp({
 // ─────────────────────────────────────────────────────────
 // CTA ボタン（共通）
 // ─────────────────────────────────────────────────────────
-function CtaButton({ label = "✦ 無料で鑑定をはじめる →", pulse = true }: { label?: string; pulse?: boolean }) {
+function CtaButton({ label = "✦ AIに正直に話してみる →", pulse = true }: { label?: string; pulse?: boolean }) {
   return (
     <div className="inline-flex flex-col items-center gap-2">
       <p style={{ color: "#9ca3af", fontSize: "12px", margin: 0 }}>登録不要・1分で完了</p>
@@ -78,22 +78,9 @@ function CtaButton({ label = "✦ 無料で鑑定をはじめる →", pulse = t
 }
 
 // ─────────────────────────────────────────────────────────
-// 希少性テキスト（点滅ドット付き）
-// ─────────────────────────────────────────────────────────
-function ScarcityLine({ remaining }: { remaining: number | null }) {
-  const count = remaining !== null && remaining > 0 ? remaining : 3;
-  return (
-    <p className="mt-3 flex items-center justify-center gap-2 text-sm text-red-400">
-      <span className="inline-block h-1.5 w-1.5 animate-blink-dot rounded-full bg-red-400" />
-      本日の無料枠 残り{count}件
-    </p>
-  );
-}
-
-// ─────────────────────────────────────────────────────────
 // Section 1: ヒーロー
 // ─────────────────────────────────────────────────────────
-function HeroSection({ remaining }: { remaining: number | null }) {
+function HeroSection() {
   const [sparkle, setSparkle] = useState(false);
   function handleCrystalClick() {
     setSparkle(true);
@@ -121,12 +108,6 @@ function HeroSection({ remaining }: { remaining: number | null }) {
       <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
         {/* 左: テキスト */}
         <div>
-          {/* バッジ */}
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-violet/30 bg-violet/10 px-4 py-2 text-sm font-medium text-violet-glow">
-            <span className="h-2 w-2 animate-blink-dot rounded-full bg-violet-glow" />
-            現在 1,247人が相談中
-          </div>
-
           {/* h1: shimmer gradient */}
           <h1 className="shimmer-text font-serif text-3xl font-bold leading-tight sm:text-5xl">
             深夜、彼のことを考えすぎて<br className="hidden sm:block" />
@@ -134,12 +115,43 @@ function HeroSection({ remaining }: { remaining: number | null }) {
           </h1>
 
           <p className="mt-5 text-lg sm:text-xl" style={{ color: "#e2e8f0" }}>
-            その不安、ひとりで抱えなくていい。
+            その気持ち、AIが正直に向き合います。
           </p>
+          <p className="mt-2 text-base sm:text-lg text-starsub">
+            答えが出なくていい。まず整理しよう。
+          </p>
+
+          <div
+            className="mt-6 rounded-2xl p-5"
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(168,139,250,0.28)"
+            }}
+          >
+            <p className="text-sm leading-relaxed text-star">
+              ホンネはAIです。<br />
+              相手の気持ちを断言することはしません。<br />
+              あなたが次にどう動くべきか、正直に伝えます。
+            </p>
+          </div>
+
+          <div
+            className="mt-4 rounded-2xl p-5"
+            style={{
+              background: "rgba(124,58,237,0.12)",
+              border: "1px solid rgba(168,139,250,0.3)"
+            }}
+          >
+            <p className="text-sm font-semibold text-star">鑑定後、あなたが持ち帰るもの：</p>
+            <ul className="mt-2 space-y-1 text-sm text-starsub">
+              <li>・自分の気持ちの整理</li>
+              <li>・今週やるべきこと1つ</li>
+              <li>・前に進むための視点</li>
+            </ul>
+          </div>
 
           <div className="mt-8">
             <CtaButton />
-            <ScarcityLine remaining={remaining} />
           </div>
         </div>
 
@@ -191,9 +203,9 @@ function HeroSection({ remaining }: { remaining: number | null }) {
 // Section 2: 問題提起
 // ─────────────────────────────────────────────────────────
 const PAINS = [
-  "高額を払ったのにテンプレ回答だった",
-  "本当に人間が占っているのか怪しかった",
-  "結局、背中を押してもらえなかった"
+  "自分の状況をちゃんと理解してもらえなかった",
+  "誰かに正直に話せる場所がなかった",
+  "モヤモヤしたまま終わってしまった"
 ];
 
 function PainSection() {
@@ -343,7 +355,7 @@ function ZygarnikSection() {
               href="/chat"
               className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-violet-glow hover:underline"
             >
-              ...続きは無料鑑定で明らかに →
+              ...続きはAIに正直に話してみる →
             </Link>
           </div>
         )}
@@ -355,19 +367,17 @@ function ZygarnikSection() {
 // ─────────────────────────────────────────────────────────
 // Section 4: 損失回避CTA
 // ─────────────────────────────────────────────────────────
-function LossCTASection({ remaining }: { remaining: number | null }) {
+function LossCTASection() {
   return (
     <section className="px-4 py-24 sm:px-8" style={{ background: "rgba(124,58,237,0.12)" }}>
       <FadeUp>
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-serif text-2xl font-bold leading-snug text-star sm:text-3xl">
-            このまま答えが出ないまま、<br />
-            今夜も眠れませんか？
+            今夜、自分の気持ちを整理してみませんか？
           </h2>
           <p className="mt-4 text-base text-starsub">AIなら今すぐ、正直に答えます。</p>
           <div className="mt-8">
             <CtaButton />
-            <ScarcityLine remaining={remaining} />
           </div>
         </div>
       </FadeUp>
@@ -393,12 +403,6 @@ const REVIEWS = [
     initials: "み",
     avatarBg: "#553C9A"
   }
-];
-
-const STATS = [
-  { value: "4.8", label: "平均評価", unit: "" },
-  { value: "300", label: "累計鑑定", unit: "件+" },
-  { value: "72", label: "リピート率", unit: "%" }
 ];
 
 function SocialProofSection() {
@@ -439,21 +443,6 @@ function SocialProofSection() {
             </FadeUp>
           ))}
         </div>
-
-        <FadeUp delay={300}>
-          <div className="mt-10 grid grid-cols-3 gap-4 rounded-2xl p-6 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(168,139,250,0.2)" }}>
-            {STATS.map((s) => (
-              <div key={s.label}>
-                <p className="font-grotesk text-3xl font-bold text-violet-glow sm:text-4xl">
-                  {s.value}
-                  <span className="text-xl">{s.unit}</span>
-                </p>
-                <p className="mt-1 text-xs text-starsub">{s.label}</p>
-                <p className="text-[11px] text-starsub opacity-60">β実績</p>
-              </div>
-            ))}
-          </div>
-        </FadeUp>
       </div>
     </section>
   );
@@ -550,35 +539,10 @@ function FinalCTASection() {
 // ─────────────────────────────────────────────────────────
 // Usage取得 & ナビ
 // ─────────────────────────────────────────────────────────
-type UsageResponse = {
-  remaining: number;
-  unlimited?: boolean;
-  plan?: "free" | "premium";
-  accessLabel?: string;
-};
-
 export function LandingPage() {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
-  const [usage, setUsage] = useState<UsageResponse | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(Boolean(supabase));
-
-  const fetchUsage = useCallback(async (token?: string | null) => {
-    try {
-      const headers: HeadersInit = {};
-      if (token) headers.Authorization = `Bearer ${token}`;
-      const res = await fetch("/api/usage", { cache: "no-store", headers });
-      if (!res.ok) throw new Error();
-      const body = (await res.json()) as UsageResponse;
-      setUsage(typeof body.remaining === "number" ? body : null);
-    } catch { setUsage(null); }
-  }, []);
-
-  useEffect(() => {
-    if (!accessToken) { setUsage(null); return; }
-    void fetchUsage(accessToken);
-  }, [fetchUsage, accessToken]);
 
   useEffect(() => {
     if (!supabase) { setLoadingAuth(false); return; }
@@ -591,11 +555,10 @@ export function LandingPage() {
     });
     void supabase.auth.getSession().then(({ data }) => {
       if (!mounted) return;
-      setAccessToken(data.session?.access_token ?? null);
+      setUser(data.session?.user ?? null);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       setUser(session?.user ?? null);
-      setAccessToken(session?.access_token ?? null);
       setLoadingAuth(false);
     });
     return () => { mounted = false; subscription.unsubscribe(); };
@@ -604,10 +567,6 @@ export function LandingPage() {
   async function onLogout() {
     if (supabase) await supabase.auth.signOut();
   }
-
-  // 残り回数（free user のみ表示、unlimited/premium は null）
-  const remaining =
-    usage && !usage.unlimited && usage.plan !== "premium" ? usage.remaining : null;
 
   return (
     <div className="bg-void">
@@ -632,10 +591,10 @@ export function LandingPage() {
       </nav>
 
       {/* ── 6セクション ──────────────────────────────────── */}
-      <HeroSection remaining={remaining} />
+      <HeroSection />
       <PainSection />
       <ZygarnikSection />
-      <LossCTASection remaining={remaining} />
+      <LossCTASection />
       <SocialProofSection />
       <FortuneTypesSection />
       <FinalCTASection />

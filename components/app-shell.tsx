@@ -7,8 +7,17 @@ import { SiteFooter } from "@/components/site-footer";
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  if (pathname === "/" || pathname === "/chat") {
+  if (pathname === "/chat") {
     return <>{children}</>;
+  }
+
+  if (pathname === "/") {
+    return (
+      <>
+        {children}
+        <SiteFooter />
+      </>
+    );
   }
 
   return (
@@ -19,4 +28,3 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </>
   );
 }
-

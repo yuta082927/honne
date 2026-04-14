@@ -47,11 +47,9 @@ const SECTION_FORMAT_LIGHT = `
 ### いま避けるべき行動
 この人が陥りやすい行動パターンとその具体的なリスク
 
-### 今日の行動
-明日から使える具体的な1つの行動。抽象的なアドバイスではなく、実行可能な内容で
-
 ### 次の確認
-次のターンで相談者自身が確認すべきこと、または深掘りすべき問いかけ`.trim();
+次のターンで相談者自身が確認すべきこと、または深掘りすべき問いかけ。
+ライトでは具体行動の指示は出さず、問いで終える`.trim();
 
 // ─── 出力セクション構成（ディープ） ───────────────────────
 const SECTION_FORMAT_DEEP = `
@@ -391,6 +389,7 @@ export function buildFallbackFortune(input: {
   computed: FortuneComputationResult;
 }): string {
   return buildStructuredFallback({
+    depth: input.depth,
     concern: input.concern,
     analysis: input.computed
   });

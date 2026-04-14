@@ -9,27 +9,27 @@ export function SiteFooter() {
         padding: "24px",
       }}
     >
-      <div className="mx-auto flex max-w-5xl items-center justify-between">
+      <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px" }}>
-          ホンネ
+          ホンネ / AIです。だから安い。だから正直。だから24時間。
         </span>
-        <nav className="flex gap-6">
+        <nav className="flex flex-wrap gap-x-6 gap-y-2">
           <Link
-            href="/legal/terms"
+            href="/terms"
             style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px" }}
             className="transition-colors hover:text-white"
           >
             利用規約
           </Link>
           <Link
-            href="/legal/privacy"
+            href="/privacy"
             style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px" }}
             className="transition-colors hover:text-white"
           >
             プライバシーポリシー
           </Link>
           <Link
-            href="/legal/tokusho"
+            href="/commerce"
             style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px" }}
             className="transition-colors hover:text-white"
           >

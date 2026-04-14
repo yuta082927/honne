@@ -7,6 +7,7 @@ import { useBirthForm } from "@/hooks/useBirthForm";
 import { useFortuneChat, type TarotCardForApi } from "@/hooks/useFortuneChat";
 import { useUsage } from "@/hooks/useUsage";
 import { FortuneResponseCard } from "@/components/fortune-response-card";
+import { LegalNotice } from "@/components/legal-notice";
 import { PremiumCta } from "@/components/premium-cta";
 import { RegisterCta } from "@/components/register-cta";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -814,6 +815,10 @@ export function FortuneForm() {
           ) : null}
 
           {globalError ? <p className="mt-2 text-[11px] text-red-400">{globalError}</p> : null}
+
+          <div className="mt-3">
+            <LegalNotice compact showLinks />
+          </div>
         </footer>
       </section>
     </main>

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getCurrentUserAccess } from "@/lib/access";
 import { requireAuthenticatedUser } from "@/lib/api-guards";
 import { listFortunesByUser } from "@/lib/db";
 
@@ -12,6 +13,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const auth = await requireAuthenticatedUser(request);
     if ("response" in auth) {
       return auth.response;
+    }
+
+    const access = await getCurrentUserAccess(request);
+    if (access.plan !== "premium") {
+      return NextResponse.json(
+        { code: "PREMIUM_REQUIRED", error: "履歴機能は月額プランで利用できます。" },
+        { status: 403 }
+      );
     }
 
     const logs = await listFortunesByUser(auth.user.id);
@@ -36,4 +45,3 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Failed to fetch histories." }, { status: 500 });
   }
 }
-

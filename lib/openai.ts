@@ -57,16 +57,16 @@ type VariationProfile = {
   closingStyle: string;
 };
 
-const TONE_OPTIONS = ["やさしく包む語り口", "現実的で率直な語り口", "客観的で冷静な語り口", "スピリチュアル寄りの語り口"] as const;
-const LENS_OPTIONS = ["未来シナリオ視点", "現状構造の分解視点", "見落としリスクの警告視点", "行動変容のアドバイス視点"] as const;
+const TONE_OPTIONS = ["やさしく包む語り口", "現実的で率直な語り口", "客観的で冷静な語り口", "温かく背中を押す語り口"] as const;
+const LENS_OPTIONS = ["未来シナリオ視点", "現状構造の分解視点", "感情整理の視点", "行動変容のアドバイス視点"] as const;
 const STORY_FLOW_OPTIONS = [
   "現在の感情 -> 背景要因 -> 分岐点 -> 次の一手",
   "結論先出し -> 根拠解説 -> 注意点 -> 実行プラン",
   "相手視点の仮説 -> 自分の本音 -> 関係の転機 -> 行動提案",
-  "短期(7日) -> 中期(1か月) -> 長期(3か月)の順で見立てる"
+  "短期(7日) -> 中期(1か月) -> 長期(3か月)の順で整える"
 ] as const;
 const OPENING_LEADS = ["最初に強く出ているのは、", "いま一番はっきり見えるのは、", "占術データを重ねると、まず見えるのは、", "先に結論を言うと、"] as const;
-const CLOSING_STYLES = ["背中を押す一言で締める", "次の確認質問で締める", "注意喚起で締める", "希望を残す言葉で締める"] as const;
+const CLOSING_STYLES = ["背中を押す一言で締める", "今週の行動確認で締める", "安心して動ける注意点で締める", "希望を残す言葉で締める"] as const;
 
 function pickOne<T>(items: readonly T[]): T {
   const index = Math.floor(Math.random() * items.length);
