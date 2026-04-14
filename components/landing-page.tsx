@@ -99,81 +99,76 @@ function HeroSection() {
         />
       ))}
 
-      <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
+      <div className="relative mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2">
         {/* 左: テキスト */}
         <div>
           {/* h1: shimmer gradient */}
           <h1 className="shimmer-text font-serif text-3xl font-bold leading-tight sm:text-5xl">
-            相手の気持ちを占うより、<br className="hidden sm:block" />
+            相手の気持ちは、占わない。<br className="hidden sm:block" />
             あなたの次の一手を決める。
           </h1>
 
-          <p className="mt-5 text-lg sm:text-xl" style={{ color: "#e2e8f0" }}>
-            ホンネは、恋愛の「感情整理」と「意思決定」を支えるAIです。
+          <p className="mt-5 text-base sm:text-lg" style={{ color: "#e2e8f0" }}>
+            恋の不安を増やすためではなく、今夜の判断を整理するAI。
           </p>
-          <p className="mt-2 text-base sm:text-lg text-starsub">
-            相手の気持ちは断言しません。あなたがどう動くべきかを決めます。
+          <p className="mt-2 text-sm sm:text-base text-starsub">
+            断言はしません。だからこそ、あなたが動ける答えを返します。
           </p>
 
-          <div
-            className="mt-6 rounded-2xl p-5"
-            style={{
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(168,139,250,0.28)"
-            }}
-          >
-            <p className="text-sm leading-relaxed text-star">
-              AIだから、感情に引っ張られずに整理できます。<br />
-              AIだから、24時間いつでも相談できます。<br />
-              AIだから、曖昧な優しさではなく行動を返します。
-            </p>
-          </div>
-
-          <div
-            className="mt-4 rounded-2xl p-5"
-            style={{
-              background: "rgba(124,58,237,0.12)",
-              border: "1px solid rgba(168,139,250,0.3)"
-            }}
-          >
-            <p className="text-sm font-semibold text-star">1分後に決まること</p>
-            <ul className="mt-2 space-y-1 text-sm text-starsub">
-              <li>・LINEするか、今日はやめるか</li>
-              <li>・追うか、距離を置くか</li>
-              <li>・今週やるべき一歩</li>
-            </ul>
+          <div className="mt-6 flex flex-wrap gap-2 text-xs text-starsub">
+            <span className="rounded-full border border-violet/35 bg-white/5 px-3 py-1">相手の気持ちは断言しない</span>
+            <span className="rounded-full border border-violet/35 bg-white/5 px-3 py-1">不安を煽らない</span>
+            <span className="rounded-full border border-violet/35 bg-white/5 px-3 py-1">次の行動を1つ決める</span>
           </div>
 
           <div className="mt-8">
-            <CtaButton label="✦ もう悩むのをやめる" />
+            <CtaButton label="✦ 今すぐ答えを出す（無料）" />
           </div>
         </div>
 
-        {/* 右: 会話密度を上げた意思決定カード */}
+        {/* 右: 水晶を主役に、補助カードを最小表示 */}
         <div className="flex items-center justify-center">
-          <div
-            className="w-full max-w-md rounded-2xl p-5"
-            style={{
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(168,139,250,0.28)",
-              boxShadow: "0 0 36px rgba(124,58,237,0.18)"
-            }}
-          >
-            <p className="text-xs tracking-[0.14em] text-violet-glow">TONIGHT DECISION</p>
-            <div className="mt-3 space-y-3">
-              <div className="rounded-xl p-3 text-sm text-starsub" style={{ background: "rgba(13,10,26,0.7)" }}>
-                「既読はつくけど返信が遅い。送っていいのかな…」
-              </div>
-              <div className="rounded-xl p-3 text-sm text-star" style={{ background: "rgba(124,58,237,0.18)", border: "1px solid rgba(168,139,250,0.35)" }}>
-                今夜は送らない。明日19:30に短文で1通だけ送る。
-                <br />
-                文面: 「今週どこかで10分だけ話せる？」
-              </div>
+          <div className="relative h-[360px] w-full max-w-md sm:h-[430px]">
+            <div
+              className="absolute inset-0 rounded-full blur-3xl"
+              style={{ background: "radial-gradient(circle, rgba(124,58,237,0.42) 0%, rgba(13,10,26,0) 68%)" }}
+            />
+
+            <div className="absolute left-1/2 top-1/2 h-[220px] w-[220px] -translate-x-1/2 -translate-y-1/2 animate-orbit rounded-full border border-violet/20 sm:h-[280px] sm:w-[280px]" />
+
+            <div
+              className="crystal-sparkle absolute left-1/2 top-1/2 h-[250px] w-[250px] -translate-x-1/2 -translate-y-1/2 animate-float rounded-full sm:h-[320px] sm:w-[320px]"
+              style={{
+                background:
+                  "radial-gradient(circle at 30% 28%, rgba(255,255,255,0.6) 0%, rgba(196,181,253,0.32) 34%, rgba(124,58,237,0.2) 58%, rgba(13,10,26,0.16) 100%)",
+                border: "1px solid rgba(196,181,253,0.42)",
+                boxShadow: "inset 0 0 38px rgba(255,255,255,0.18), 0 0 72px rgba(124,58,237,0.32)"
+              }}
+            >
+              <span
+                className="absolute left-[22%] top-[24%] h-2.5 w-2.5 rounded-full bg-violet-glow"
+                style={{ boxShadow: "0 0 18px rgba(196,181,253,0.9)" }}
+              />
+              <span
+                className="absolute right-[24%] top-[40%] h-1.5 w-1.5 rounded-full bg-white"
+                style={{ boxShadow: "0 0 14px rgba(255,255,255,0.8)" }}
+              />
+              <span
+                className="absolute left-[40%] bottom-[24%] h-1.5 w-1.5 rounded-full bg-violet-glow"
+                style={{ boxShadow: "0 0 16px rgba(196,181,253,0.7)" }}
+              />
             </div>
-            <div className="mt-4 grid grid-cols-3 gap-2 text-center text-[11px] text-starsub">
-              <div className="rounded-lg py-2" style={{ background: "rgba(255,255,255,0.04)" }}>感情整理</div>
-              <div className="rounded-lg py-2" style={{ background: "rgba(255,255,255,0.04)" }}>判断</div>
-              <div className="rounded-lg py-2" style={{ background: "rgba(255,255,255,0.04)" }}>行動</div>
+
+            <div
+              className="absolute bottom-2 left-1/2 w-[88%] -translate-x-1/2 rounded-xl p-3 sm:bottom-4 sm:w-[78%]"
+              style={{
+                background: "rgba(13,10,26,0.56)",
+                border: "1px solid rgba(168,139,250,0.26)",
+                backdropFilter: "blur(3px)"
+              }}
+            >
+              <p className="text-[11px] text-starsub">今夜の整理</p>
+              <p className="mt-1 text-sm text-star">「今日は送らない。明日、短く1通だけ。」</p>
             </div>
           </div>
         </div>
