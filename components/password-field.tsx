@@ -48,7 +48,7 @@ export function PasswordField({
 
   return (
     <label className="block space-y-1" htmlFor={inputId}>
-      <span className="text-xs font-medium text-ink/70">{label}</span>
+      <span className="text-xs font-medium text-starsub">{label}</span>
       <div className="relative">
         <input
           id={inputId}
@@ -59,13 +59,13 @@ export function PasswordField({
           minLength={minLength}
           placeholder={placeholder}
           disabled={disabled}
-          className="w-full rounded-xl border border-rose-200 px-3 py-2 pr-10 text-sm outline-none focus:border-wine disabled:opacity-60"
+          className="w-full rounded-xl border border-violet/35 bg-void/60 px-3 py-2 pr-10 text-sm text-star outline-none placeholder:text-starsub/70 focus:border-violet-glow focus:ring-1 focus:ring-violet-glow/35 disabled:opacity-60"
         />
         <button
           type="button"
           onClick={() => setShowPassword((prev) => !prev)}
           disabled={disabled}
-          className="absolute inset-y-0 right-2 my-auto inline-flex h-7 w-7 items-center justify-center rounded-md text-subink hover:bg-rose disabled:opacity-50"
+          className="absolute inset-y-0 right-2 my-auto inline-flex h-7 w-7 items-center justify-center rounded-md text-starsub transition hover:bg-violet/15 hover:text-star disabled:opacity-50"
           aria-label={showPassword ? "パスワードを非表示" : "パスワードを表示"}
           aria-pressed={showPassword}
         >

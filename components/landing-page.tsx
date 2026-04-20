@@ -1,644 +1,352 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { User } from "@supabase/supabase-js";
-import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
+import { Cormorant_Garamond, Noto_Sans_JP, Shippori_Mincho } from "next/font/google";
+import { LazyMotion, domAnimation, m, useReducedMotion } from "framer-motion";
 
-// ─────────────────────────────────────────────────────────
-// Stars: 50個を決定論的な位置で生成（SSR hydration安全）
-// ─────────────────────────────────────────────────────────
-const STARS = Array.from({ length: 50 }, (_, i) => ({
-  left: `${(i * 37 + 13) % 97}%`,
-  top: `${(i * 53 + 7) % 95}%`,
-  size: [2, 1.5, 1, 2.5, 1, 1.5][i % 6],
-  delay: `${((i * 23) % 30) / 10}s`,
-  duration: `${2 + ((i * 17) % 15) / 10}s`
-}));
+const jaSerif = Shippori_Mincho({
+  weight: ["400", "500", "700"],
+  subsets: ["latin"],
+  display: "swap"
+});
 
-// ─────────────────────────────────────────────────────────
-// FadeUp: Intersection Observer によるスクロール出現
-// ─────────────────────────────────────────────────────────
-function FadeUp({
-  children,
-  delay = 0,
-  className = ""
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+const enSerif = Cormorant_Garamond({
+  weight: ["400", "500", "600"],
+  subsets: ["latin"],
+  display: "swap"
+});
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) { setVisible(true); obs.disconnect(); }
-      },
-      { threshold: 0.15 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
+const bodySans = Noto_Sans_JP({
+  weight: ["400", "500", "700"],
+  subsets: ["latin"],
+  display: "swap"
+});
 
-  return (
-    <div
-      ref={ref}
-      className={`transition-[opacity,transform] duration-700 ease-out ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
-      } ${className}`}
-      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
-    >
-      {children}
-    </div>
-  );
-}
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-// ─────────────────────────────────────────────────────────
-// CTA ボタン（共通）
-// ─────────────────────────────────────────────────────────
-function CtaButton({ label = "✦ 今すぐ答えを出す（無料）", pulse = true }: { label?: string; pulse?: boolean }) {
-  return (
-    <div className="inline-flex flex-col items-center gap-2">
-      <p style={{ color: "#9ca3af", fontSize: "12px", margin: 0 }}>登録不要・1分で本音を整理</p>
-      <Link
-        href="/chat"
-        className={`cta-ring inline-flex items-center justify-center rounded-full bg-gradient-to-r from-violet to-violet-soft font-bold text-white shadow-lg transition hover:opacity-90 ${
-          pulse ? "animate-pulse-btn" : ""
-        }`}
-        style={{ padding: "18px 40px", fontSize: "18px" }}
-      >
-        {label}
-      </Link>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────
-// Section 1: ヒーロー
-// ─────────────────────────────────────────────────────────
-function HeroSection() {
-  return (
-    <section className="relative min-h-screen overflow-hidden bg-void px-4 pb-24 pt-20 sm:px-8">
-      {/* 星50個 */}
-      {STARS.map((s, i) => (
-        <span
-          key={i}
-          className="pointer-events-none absolute rounded-full bg-star"
-          style={{
-            left: s.left,
-            top: s.top,
-            width: s.size,
-            height: s.size,
-            opacity: 0.4,
-            animation: `twinkle ${s.duration} ${s.delay} ease-in-out infinite`
-          }}
-        />
-      ))}
-
-      <div className="relative mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2">
-        {/* 左: テキスト */}
-        <div>
-          {/* h1: shimmer gradient */}
-          <h1 className="shimmer-text font-serif text-3xl font-bold leading-tight sm:text-5xl">
-            相手の気持ちは、占わない。<br className="hidden sm:block" />
-            あなたの次の一手を決める。
-          </h1>
-
-          <p className="mt-5 text-base sm:text-lg" style={{ color: "#e2e8f0" }}>
-            恋の不安を増やすためではなく、今夜の判断を整理するAI。
-          </p>
-          <p className="mt-2 text-sm sm:text-base text-starsub">
-            断言はしません。だからこそ、あなたが動ける答えを返します。
-          </p>
-
-          <div className="mt-6 flex flex-wrap gap-2 text-xs text-starsub">
-            <span className="rounded-full border border-violet/35 bg-white/5 px-3 py-1">相手の気持ちは断言しない</span>
-            <span className="rounded-full border border-violet/35 bg-white/5 px-3 py-1">不安を煽らない</span>
-            <span className="rounded-full border border-violet/35 bg-white/5 px-3 py-1">次の行動を1つ決める</span>
-          </div>
-
-          <div className="mt-8">
-            <CtaButton label="✦ 今すぐ答えを出す（無料）" />
-          </div>
-        </div>
-
-        {/* 右: 水晶を主役に、補助カードを最小表示 */}
-        <div className="flex items-center justify-center">
-          <div className="relative h-[360px] w-full max-w-md sm:h-[430px]">
-            <div
-              className="absolute inset-0 rounded-full blur-3xl"
-              style={{ background: "radial-gradient(circle, rgba(124,58,237,0.42) 0%, rgba(13,10,26,0) 68%)" }}
-            />
-
-            <div className="absolute left-1/2 top-1/2 h-[220px] w-[220px] -translate-x-1/2 -translate-y-1/2 animate-orbit rounded-full border border-violet/20 sm:h-[280px] sm:w-[280px]" />
-
-            <div
-              className="crystal-sparkle absolute left-1/2 top-1/2 h-[250px] w-[250px] -translate-x-1/2 -translate-y-1/2 animate-float rounded-full sm:h-[320px] sm:w-[320px]"
-              style={{
-                background:
-                  "radial-gradient(circle at 30% 28%, rgba(255,255,255,0.6) 0%, rgba(196,181,253,0.32) 34%, rgba(124,58,237,0.2) 58%, rgba(13,10,26,0.16) 100%)",
-                border: "1px solid rgba(196,181,253,0.42)",
-                boxShadow: "inset 0 0 38px rgba(255,255,255,0.18), 0 0 72px rgba(124,58,237,0.32)"
-              }}
-            >
-              <span
-                className="absolute left-[22%] top-[24%] h-2.5 w-2.5 rounded-full bg-violet-glow"
-                style={{ boxShadow: "0 0 18px rgba(196,181,253,0.9)" }}
-              />
-              <span
-                className="absolute right-[24%] top-[40%] h-1.5 w-1.5 rounded-full bg-white"
-                style={{ boxShadow: "0 0 14px rgba(255,255,255,0.8)" }}
-              />
-              <span
-                className="absolute left-[40%] bottom-[24%] h-1.5 w-1.5 rounded-full bg-violet-glow"
-                style={{ boxShadow: "0 0 16px rgba(196,181,253,0.7)" }}
-              />
-            </div>
-
-            <div
-              className="absolute bottom-2 left-1/2 w-[88%] -translate-x-1/2 rounded-xl p-3 sm:bottom-4 sm:w-[78%]"
-              style={{
-                background: "rgba(13,10,26,0.56)",
-                border: "1px solid rgba(168,139,250,0.26)",
-                backdropFilter: "blur(3px)"
-              }}
-            >
-              <p className="text-[11px] text-starsub">今夜の整理</p>
-              <p className="mt-1 text-sm text-star">「今日は送らない。明日、短く1通だけ。」</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────
-// Section 2: 問題提起
-// ─────────────────────────────────────────────────────────
-const PAINS = [
-  "LINEを送るかどうかで1時間止まっている",
-  "既読はつくのに、返事が来ない理由がわからない",
-  "期待していいのか、諦めるべきか判断できない",
-  "会えたのに距離が縮まらず、疲れてしまった"
-];
-
-function PainSection() {
-  return (
-    <section className="bg-void px-4 py-20 sm:px-8">
-      <div className="mx-auto max-w-3xl">
-        <FadeUp>
-          <h2 className="font-serif text-2xl font-bold text-star sm:text-3xl">
-            こんな夜、止まりませんか？
-          </h2>
-        </FadeUp>
-        <div className="mt-8 space-y-4">
-          {PAINS.map((text, i) => (
-            <FadeUp key={i} delay={i * 150}>
-              <div
-                className="group cursor-default rounded-xl p-5 transition-all duration-300 hover:-translate-y-1"
-                style={{
-                  background: "rgba(248,113,113,0.05)",
-                  borderLeft: "2px solid #f87171"
-                }}
-              >
-                <p className="text-base text-starsub group-hover:text-star">{text}</p>
-              </div>
-            </FadeUp>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────
-// Section 3: 差別化
-// ─────────────────────────────────────────────────────────
-const DIFFERENCE_POINTS = [
-  {
-    title: "相手の気持ちは断言しない",
-    desc: "「好きです」などの断定で期待を煽りません。現時点で判断できる材料だけを扱います。"
-  },
+const FEATURES = [
   {
     title: "不安を煽らない",
-    desc: "続きを読ませるための恐怖訴求はしません。必要な情報をその場で出し切ります。"
+    description: "結論を急がず、感情の温度を見極めながら静かに整理します。",
+    icon: CalmIcon
   },
   {
-    title: "行動だけにフォーカス",
-    desc: "共感だけで終わらせず、「今週やるべきこと」を具体的に決めます。"
+    title: "AIによる正直な対話",
+    description: "耳ざわりの良い肯定よりも、いま必要な視点を誠実に返します。",
+    icon: HonestIcon
   },
   {
-    title: "AIだから冷静に整理できる",
-    desc: "感情に流されず、同じ悩みをいつでも同じ基準で見直せます。"
+    title: "行動のための言語化",
+    description: "曖昧な迷いを、今夜の一歩に変える短い言葉へ整えます。",
+    icon: ActionIcon
   }
-];
+] as const;
 
-function DifferenceSection() {
+function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; delay?: number; className?: string }) {
+  const reduced = useReducedMotion();
+
   return (
-    <section className="bg-void px-4 py-20 sm:px-8">
-      <div className="mx-auto max-w-4xl">
-        <FadeUp>
-          <h2 className="font-serif text-2xl font-bold text-star sm:text-3xl">
-            ホンネは“当てる占い”ではありません
-          </h2>
-          <p className="mt-2 text-sm text-starsub">曖昧な優しさではなく、判断と行動に変えるサービスです。</p>
-        </FadeUp>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {DIFFERENCE_POINTS.map((item, i) => (
-            <FadeUp key={item.title} delay={i * 100}>
-              <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(168,139,250,0.24)" }}>
-                <p className="text-sm font-semibold text-star">{item.title}</p>
-                <p className="mt-2 text-sm leading-relaxed text-starsub">{item.desc}</p>
-              </div>
-            </FadeUp>
-          ))}
-        </div>
-      </div>
-    </section>
+    <m.div
+      className={className}
+      initial={reduced ? false : { opacity: 0, y: 28, filter: "blur(4px)" }}
+      whileInView={reduced ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }}
+      viewport={{ once: true, amount: 0.28 }}
+      transition={{ duration: 0.9, delay, ease: EASE }}
+    >
+      {children}
+    </m.div>
   );
 }
 
-// ─────────────────────────────────────────────────────────
-// Section 4: ベネフィット
-// ─────────────────────────────────────────────────────────
-const BENEFITS = [
-  "連絡するか、今日はやめるか決められる",
-  "続けるか終わらせるか判断できる",
-  "自分が本当に求めている関係がわかる",
-  "今週の一歩が具体的に決まる"
-];
-
-function BenefitSection() {
+function SectionHeading({
+  overline,
+  title,
+  description,
+  centered = false
+}: {
+  overline: string;
+  title: string;
+  description: string;
+  centered?: boolean;
+}) {
   return (
-    <section className="px-4 py-20 sm:px-8" style={{ background: "rgba(124,58,237,0.1)" }}>
-      <div className="mx-auto max-w-3xl">
-        <FadeUp>
-          <h2 className="font-serif text-2xl font-bold text-star sm:text-3xl">この相談で得られること</h2>
-        </FadeUp>
-        <div className="mt-8 space-y-3">
-          {BENEFITS.map((text, i) => (
-            <FadeUp key={text} delay={i * 90}>
-              <div className="rounded-xl px-4 py-3 text-sm text-star" style={{ background: "rgba(13,10,26,0.65)", border: "1px solid rgba(168,139,250,0.25)" }}>
-                {text}
-              </div>
-            </FadeUp>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────
-// Section 5: 入口診断
-// ─────────────────────────────────────────────────────────
-type PersonalityKey = "intuitive" | "analytical" | "emotional";
-const PERSONALITIES: Record<PersonalityKey, { label: string; preview: string }> = {
-  intuitive: {
-    label: "直感型",
-    preview:
-      "あなたは【直感型】。相手の小さな反応にも敏感で、期待と不安が揺れやすいタイプです。"
-  },
-  analytical: {
-    label: "分析型",
-    preview:
-      "あなたは【分析型】。言葉の意図を深く読み取り、慎重に動くタイプです。考えすぎで動けなくなることがあります。"
-  },
-  emotional: {
-    label: "感情型",
-    preview:
-      "あなたは【感情型】。好きになるとまっすぐ行動できるタイプです。反応がない時に自己否定へ傾きやすい面があります。"
-  }
-};
-
-function getPersonalityKey(month: string, day: string): PersonalityKey {
-  const sum = (parseInt(month, 10) + parseInt(day, 10)) % 3;
-  return sum === 0 ? "intuitive" : sum === 1 ? "analytical" : "emotional";
-}
-
-function ZygarnikSection() {
-  const [month, setMonth] = useState("");
-  const [day, setDay] = useState("");
-  const [result, setResult] = useState<PersonalityKey | null>(null);
-  const resultRef = useRef<HTMLDivElement>(null);
-
-  function handleSubmit() {
-    if (!month || !day) return;
-    setResult(getPersonalityKey(month, day));
-    setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
-  }
-
-  const personality = result ? PERSONALITIES[result] : null;
-
-  return (
-    <section className="bg-void px-4 py-20 sm:px-8">
-      <div className="mx-auto max-w-2xl">
-        <FadeUp>
-          <h2 className="font-serif text-2xl font-bold text-star sm:text-3xl">
-            まずは、あなたの恋愛タイプを30秒で確認
-          </h2>
-          <p className="mt-3 text-sm text-starsub">なぜ迷うのかが分かると、判断は一気に楽になります。</p>
-        </FadeUp>
-
-        <FadeUp delay={100}>
-          <div className="mt-8 flex flex-wrap items-end gap-3">
-            <label className="flex flex-col gap-1">
-              <span className="text-xs text-starsub">生まれた月</span>
-              <select
-                value={month}
-                onChange={(e) => setMonth(e.target.value)}
-                className="rounded-xl px-4 py-3 text-sm font-medium text-star outline-none focus:ring-2 focus:ring-violet"
-                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(168,139,250,0.3)" }}
-              >
-                <option value="">月</option>
-                {Array.from({ length: 12 }, (_, i) => (
-                  <option key={i + 1} value={String(i + 1)} style={{ background: "#1a1030" }}>
-                    {i + 1}月
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="flex flex-col gap-1">
-              <span className="text-xs text-starsub">生まれた日</span>
-              <select
-                value={day}
-                onChange={(e) => setDay(e.target.value)}
-                className="rounded-xl px-4 py-3 text-sm font-medium text-star outline-none focus:ring-2 focus:ring-violet"
-                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(168,139,250,0.3)" }}
-              >
-                <option value="">日</option>
-                {Array.from({ length: 31 }, (_, i) => (
-                  <option key={i + 1} value={String(i + 1)} style={{ background: "#1a1030" }}>
-                    {i + 1}日
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={!month || !day}
-              className="rounded-xl bg-gradient-to-r from-violet to-violet-soft px-6 py-3 text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-40"
-            >
-              相性を見る
-            </button>
-          </div>
-        </FadeUp>
-
-        {personality && (
-          <div
-            ref={resultRef}
-            className="mt-8 rounded-2xl p-6 transition-all duration-500"
-            style={{
-              background: "rgba(124,58,237,0.1)",
-              border: "1px solid rgba(168,139,250,0.5)",
-              boxShadow: "0 0 30px rgba(124,58,237,0.2)"
-            }}
-          >
-            <p className="mb-1 text-xs font-semibold tracking-widest text-violet-glow">診断結果</p>
-            <p className="text-base leading-relaxed text-star">{personality.preview}</p>
-            <div
-              className="mt-3 h-16 rounded-lg"
-              style={{ background: "linear-gradient(to bottom, transparent, #0d0a1a)" }}
-            />
-            <Link
-              href="/chat"
-              className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-violet-glow hover:underline"
-            >
-              このタイプで相談を始める →
-            </Link>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────
-// Section 6: 行動CTA
-// ─────────────────────────────────────────────────────────
-function LossCTASection() {
-  return (
-    <section className="px-4 py-24 sm:px-8" style={{ background: "rgba(124,58,237,0.12)" }}>
-      <FadeUp>
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-serif text-2xl font-bold leading-snug text-star sm:text-3xl">
-            迷い続けるより、今夜ここで決める。
-          </h2>
-          <p className="mt-4 text-base text-starsub">1分で本音を整理して、次の一歩を明確にしましょう。</p>
-          <div className="mt-8">
-            <CtaButton label="✦ 1分で本音を整理する" />
-          </div>
-        </div>
-      </FadeUp>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────
-// Section 7: 社会的証明
-// ─────────────────────────────────────────────────────────
-const REVIEWS = [
-  {
-    name: "さき",
-    age: "26歳・東京",
-    text: "『送るか迷ったら送らない』と決められたのが大きかったです。勢いLINEをやめたら、逆に会話が戻りました。",
-    initials: "さ",
-    avatarBg: "#3C3489"
-  },
-  {
-    name: "みく",
-    age: "23歳・大阪",
-    text: "復縁を追い続けるのをやめる決断ができました。つらいけど、やっと自分の生活に戻れています。",
-    initials: "み",
-    avatarBg: "#553C9A"
-  }
-];
-
-function SocialProofSection() {
-  return (
-    <section className="bg-void px-4 py-20 sm:px-8">
-      <div className="mx-auto max-w-4xl">
-        <FadeUp>
-          <h2 className="font-serif text-2xl font-bold text-star sm:text-3xl">行動が変わった声</h2>
-        </FadeUp>
-
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {REVIEWS.map((r, i) => (
-            <FadeUp key={i} delay={i * 150}>
-              <div
-                className="h-full rounded-2xl p-6"
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(168,139,250,0.2)"
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
-                    style={{ background: r.avatarBg }}
-                  >
-                    {r.initials}
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-star">{r.name}さん</p>
-                    <p className="text-xs text-starsub">{r.age}</p>
-                  </div>
-                  <div className="ml-auto flex gap-0.5 text-yellow-400 text-sm">
-                    {"★★★★★"}
-                  </div>
-                </div>
-                <p className="mt-4 text-sm leading-relaxed text-starsub">{r.text}</p>
-              </div>
-            </FadeUp>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────
-// Section 8: 解決できる理由
-// ─────────────────────────────────────────────────────────
-const FORTUNE_TYPES = [
-  { icon: "✦", title: "スピリチュアル層", desc: "感情の流れを短く可視化し、混乱を落ち着かせる", comingSoon: false },
-  { icon: "🧠", title: "心理学層", desc: "なぜ迷うかを言語化し、思考の偏りを整える", comingSoon: false },
-  { icon: "🪜", title: "コーチング層", desc: "今週やることを1つに絞り、行動へ落とす", comingSoon: false },
-  { icon: "🔍", title: "恋愛タイプ分析", desc: "悩み方の癖と、彼とのズレを入口で把握できる", comingSoon: false }
-];
-
-function FortuneTypesSection() {
-  return (
-    <section className="bg-void px-4 py-20 sm:px-8">
-      <div className="mx-auto max-w-4xl">
-        <FadeUp>
-          <h2 className="font-serif text-2xl font-bold text-star sm:text-3xl">なぜ、結論まで進めるのか</h2>
-          <p className="mt-2 text-sm text-starsub">三層構造で「わかる」を「決められる」に変えます。</p>
-        </FadeUp>
-
-        <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-          {FORTUNE_TYPES.map((ft, i) => (
-            <FadeUp key={i} delay={i * 80}>
-              <div
-                className="group h-full rounded-xl p-4 transition-all duration-300"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(168,139,250,0.3)" }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
-                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(168,139,250,0.7)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(168,139,250,0.3)";
-                }}
-              >
-                <span style={{ fontSize: "20px", lineHeight: 1, display: "block", marginBottom: "8px" }}>
-                  {ft.icon}
-                </span>
-                <p className="text-sm font-bold text-star" style={{ fontSize: "14px" }}>{ft.title}</p>
-                <p className="mt-1 text-starsub" style={{ fontSize: "12px" }}>{ft.desc}</p>
-              </div>
-            </FadeUp>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────
-// Section 9: 最終CTA
-// ─────────────────────────────────────────────────────────
-function FinalCTASection() {
-  return (
-    <section className="bg-void px-4 py-28 sm:px-8">
-      <FadeUp>
-        <div className="mx-auto max-w-xl text-center">
-          <p className="shimmer-text font-serif text-2xl font-bold leading-loose sm:text-3xl">
-            迷いを引き延ばさない。<br />
-            今夜、答えを出す。
-          </p>
-          <p className="mt-4 text-sm text-starsub">AIです。だから安い。だから正直。だから24時間。</p>
-          <div className="mt-10">
-            <CtaButton label="✦ 今すぐ答えを出す（無料）" />
-          </div>
-        </div>
-      </FadeUp>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────
-// Usage取得 & ナビ
-// ─────────────────────────────────────────────────────────
-export function LandingPage() {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
-  const [user, setUser] = useState<User | null>(null);
-  const [loadingAuth, setLoadingAuth] = useState(Boolean(supabase));
-
-  useEffect(() => {
-    if (!supabase) { setLoadingAuth(false); return; }
-    let mounted = true;
-
-    void supabase.auth.getUser().then(({ data }) => {
-      if (!mounted) return;
-      setUser(data.user ?? null);
-      setLoadingAuth(false);
-    });
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return;
-      setUser(data.session?.user ?? null);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
-      setLoadingAuth(false);
-    });
-    return () => { mounted = false; subscription.unsubscribe(); };
-  }, [supabase]);
-
-  async function onLogout() {
-    if (supabase) await supabase.auth.signOut();
-  }
-
-  return (
-    <div className="bg-void">
-      {/* ── ナビゲーション ────────────────────────────────── */}
-      <nav className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between px-4 py-4 sm:px-8" style={{ background: "#0d0a1a", borderBottom: "1px solid rgba(168,139,250,0.18)" }}>
-        <Link href="/" className="text-sm font-bold text-star">ホンネ</Link>
-        <div className="flex items-center gap-2 text-xs sm:text-sm">
-          {loadingAuth ? (
-            <span className="text-starsub">確認中...</span>
-          ) : user ? (
-            <>
-              <Link href="/account" className="rounded-full px-3 py-1 text-starsub hover:text-star">マイページ</Link>
-              <button type="button" onClick={onLogout} className="rounded-full border border-violet/30 px-3 py-1 text-starsub hover:text-star">ログアウト</button>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="rounded-full px-3 py-1 text-starsub hover:text-star">ログイン</Link>
-              <Link href="/signup" className="rounded-full border border-violet/50 bg-violet/10 px-3 py-1 font-semibold text-violet-glow hover:bg-violet/20">無料登録</Link>
-            </>
-          )}
-        </div>
-      </nav>
-
-      {/* ── LPストーリー ──────────────────────────────────── */}
-      <HeroSection />
-      <PainSection />
-      <DifferenceSection />
-      <BenefitSection />
-      <SocialProofSection />
-      <ZygarnikSection />
-      <FortuneTypesSection />
-      <LossCTASection />
-      <FinalCTASection />
+    <div className={centered ? "text-center" : ""}>
+      <p className={`${enSerif.className} text-[11px] uppercase tracking-[0.32em] text-[#E0E0E0]/55`}>{overline}</p>
+      <h2 className={`${jaSerif.className} mt-4 text-3xl leading-tight text-[#E0E0E0] sm:text-4xl`}>{title}</h2>
+      <p className="mt-5 max-w-[56ch] text-sm leading-8 tracking-[0.04em] text-[#E0E0E0]/72 sm:text-base sm:leading-8">{description}</p>
     </div>
+  );
+}
+
+function CalmIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden>
+      <path d="M4 8H20" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M6 12H18" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M8 16H16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function HonestIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden>
+      <path d="M12 3L19 7V12C19 16.2 16.5 19.8 12 21C7.5 19.8 5 16.2 5 12V7L12 3Z" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M9 12.5L11.2 14.7L15 10.9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ActionIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden>
+      <path d="M5 18L18 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M10 5H18V13" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="7" cy="17" r="2" stroke="currentColor" strokeWidth="1.4" />
+    </svg>
+  );
+}
+
+function AmbientBackdrop() {
+  const reduced = useReducedMotion();
+
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <m.div
+        className="absolute -left-24 top-20 h-72 w-72 rounded-full blur-[100px]"
+        style={{ background: "radial-gradient(circle, rgba(77,208,225,0.34), rgba(26,35,126,0.06) 70%)" }}
+        animate={reduced ? undefined : { x: [0, 24, 0], y: [0, -18, 0], opacity: [0.35, 0.56, 0.35] }}
+        transition={reduced ? undefined : { duration: 18, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <m.div
+        className="absolute right-[-90px] top-[28%] h-80 w-80 rounded-full blur-[120px]"
+        style={{ background: "radial-gradient(circle, rgba(26,35,126,0.46), rgba(77,208,225,0.08) 72%)" }}
+        animate={reduced ? undefined : { x: [0, -20, 0], y: [0, 22, 0], opacity: [0.22, 0.42, 0.22] }}
+        transition={reduced ? undefined : { duration: 22, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <m.div
+        className="absolute bottom-[-120px] left-1/2 h-72 w-[520px] -translate-x-1/2 rounded-full blur-[110px]"
+        style={{ background: "radial-gradient(circle, rgba(77,208,225,0.18), rgba(10,14,26,0) 72%)" }}
+        animate={reduced ? undefined : { scale: [1, 1.12, 1], opacity: [0.2, 0.3, 0.2] }}
+        transition={reduced ? undefined : { duration: 24, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <div
+        className="absolute inset-0 opacity-[0.12]"
+        style={{
+          backgroundImage:
+            "radial-gradient(rgba(224,224,224,0.9) 0.55px, transparent 0.55px), radial-gradient(rgba(224,224,224,0.32) 0.4px, transparent 0.4px)",
+          backgroundSize: "3px 3px, 7px 7px",
+          backgroundPosition: "0 0, 1px 2px"
+        }}
+      />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,14,26,0.08)_0%,rgba(10,14,26,0.48)_56%,rgba(10,14,26,0.86)_100%)]" />
+    </div>
+  );
+}
+
+function HeroSection() {
+  const reduced = useReducedMotion();
+
+  return (
+    <section className="relative flex min-h-[100svh] items-center px-6 pb-20 pt-14 sm:px-8 lg:px-16">
+      <div className="mx-auto grid w-full max-w-[1180px] items-center gap-14 lg:grid-cols-[1.06fr_0.94fr]">
+        <Reveal className="max-w-[620px]">
+          <p className={`${enSerif.className} text-xs uppercase tracking-[0.38em] text-[#E0E0E0]/58`}>honne</p>
+          <h1 className={`${jaSerif.className} mt-6 text-[clamp(2rem,6vw,4.3rem)] leading-[1.2] text-[#E0E0E0]`}>
+            「相手の気持ち」より、
+            <br />
+            あなたの「本音」を。
+          </h1>
+          <p className="mt-7 max-w-[44ch] text-sm leading-8 tracking-[0.04em] text-[#E0E0E0]/74 sm:text-base">
+            honneは、感情を断定するためのサービスではありません。
+            自分でも見失いやすい気持ちを、透明な対話で整える知的な内省体験です。
+          </p>
+        </Reveal>
+
+        <Reveal delay={0.12} className="flex justify-center lg:justify-end">
+          <m.div
+            className="relative h-[310px] w-[310px] sm:h-[420px] sm:w-[420px]"
+            animate={reduced ? undefined : { y: [0, -8, 0] }}
+            transition={reduced ? undefined : { duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <div className="absolute inset-0 rounded-full border border-[#E0E0E0]/20" />
+            <m.div
+              className="absolute inset-6 rounded-full border border-[#4DD0E1]/26"
+              animate={reduced ? undefined : { rotate: 360 }}
+              transition={reduced ? undefined : { duration: 64, repeat: Infinity, ease: "linear" }}
+            />
+            <m.div
+              className="absolute inset-14 rounded-full border border-[#1A237E]/44"
+              animate={reduced ? undefined : { rotate: -360 }}
+              transition={reduced ? undefined : { duration: 78, repeat: Infinity, ease: "linear" }}
+            />
+            <div
+              className="absolute left-1/2 top-1/2 h-[170px] w-[170px] -translate-x-1/2 -translate-y-1/2 rounded-[42%] blur-[1px]"
+              style={{
+                background:
+                  "radial-gradient(circle at 35% 28%, rgba(224,224,224,0.78) 0%, rgba(77,208,225,0.25) 42%, rgba(26,35,126,0.2) 72%, rgba(10,14,26,0.12) 100%)",
+                boxShadow: "0 0 100px rgba(77,208,225,0.18), 0 0 60px rgba(26,35,126,0.22)"
+              }}
+            />
+            <div className="absolute left-1/2 top-[64%] h-24 w-52 -translate-x-1/2 rounded-full bg-[#4DD0E1]/18 blur-3xl" />
+          </m.div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function ConceptSection() {
+  return (
+    <section className="px-6 py-16 sm:px-8 sm:py-24 lg:px-16">
+      <div className="mx-auto max-w-[1080px]">
+        <Reveal>
+          <SectionHeading
+            overline="Concept"
+            title="占いでもコーチングでもない、第三の選択肢。"
+            description="honneは“当たり”を示すのではなく、あなたの解像度を高めます。感情を見つめ、迷いを言葉にし、未来へ向かう手触りを手元に残します。"
+          />
+        </Reveal>
+
+        <Reveal delay={0.12} className="mt-12 grid gap-8 border-t border-[#E0E0E0]/20 pt-10 lg:grid-cols-3">
+          <div>
+            <p className={`${enSerif.className} text-xs uppercase tracking-[0.24em] text-[#E0E0E0]/45`}>Fortune telling</p>
+            <p className="mt-3 text-sm leading-8 tracking-[0.04em] text-[#E0E0E0]/64">結果を受け取る体験</p>
+          </div>
+          <div>
+            <p className={`${enSerif.className} text-xs uppercase tracking-[0.24em] text-[#E0E0E0]/45`}>Coaching</p>
+            <p className="mt-3 text-sm leading-8 tracking-[0.04em] text-[#E0E0E0]/64">目標へ進む体験</p>
+          </div>
+          <div>
+            <p className={`${enSerif.className} text-xs uppercase tracking-[0.24em] text-[#4DD0E1]/88`}>honne</p>
+            <p className="mt-3 text-sm leading-8 tracking-[0.04em] text-[#E0E0E0]/86">自分を理解し、次の一手を選ぶ体験</p>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function FeaturesSection() {
+  return (
+    <section className="px-6 py-16 sm:px-8 sm:py-24 lg:px-16">
+      <div className="mx-auto max-w-[1080px]">
+        <Reveal>
+          <SectionHeading
+            overline="Features"
+            title="静けさを保ったまま、判断に必要な明るさを。"
+            description="感情を刺激しすぎず、曖昧さを残しすぎない。対話はいつも、あなたの主体性を中心に設計されています。"
+          />
+        </Reveal>
+
+        <div className="mt-12 grid gap-8 lg:grid-cols-3 lg:gap-12">
+          {FEATURES.map((item, index) => (
+            <Reveal key={item.title} delay={index * 0.1}>
+              <article className="border-t border-[#E0E0E0]/24 pt-6">
+                <div className="mb-5 inline-flex rounded-full border border-[#E0E0E0]/34 bg-[#E0E0E0]/[0.06] p-2 text-[#4DD0E1]">
+                  <item.icon />
+                </div>
+                <h3 className={`${jaSerif.className} text-2xl text-[#E0E0E0]`}>{item.title}</h3>
+                <p className="mt-4 text-sm leading-8 tracking-[0.04em] text-[#E0E0E0]/70">{item.description}</p>
+              </article>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function UiPreviewSection() {
+  return (
+    <section className="px-6 py-16 sm:px-8 sm:py-24 lg:px-16">
+      <div className="mx-auto max-w-[1080px]">
+        <Reveal>
+          <SectionHeading
+            overline="UI Preview"
+            title="余白のある対話で、感情を焦らせない。"
+            description="ミニマルな画面設計により、答えよりも対話の質へ意識を向けられるインターフェースです。"
+            centered
+          />
+        </Reveal>
+
+        <Reveal delay={0.15} className="mt-12 flex justify-center">
+          <div className="w-full max-w-[720px] rounded-[30px] border border-[#E0E0E0]/24 bg-[#E0E0E0]/[0.06] p-4 shadow-[0_40px_100px_rgba(5,8,16,0.55)] backdrop-blur-2xl sm:p-6">
+            <div className="rounded-3xl border border-[#E0E0E0]/18 bg-[linear-gradient(160deg,rgba(10,14,26,0.8),rgba(26,35,126,0.22))] p-4 sm:p-6">
+              <div className="flex items-center justify-between border-b border-[#E0E0E0]/14 pb-4">
+                <div>
+                  <p className={`${enSerif.className} text-xs uppercase tracking-[0.24em] text-[#E0E0E0]/58`}>honne session</p>
+                  <p className="mt-1 text-xs tracking-[0.06em] text-[#E0E0E0]/58">透明なAI対話</p>
+                </div>
+                <span className="rounded-full border border-[#4DD0E1]/35 bg-[#4DD0E1]/10 px-3 py-1 text-[10px] tracking-[0.18em] text-[#4DD0E1]">LIVE</span>
+              </div>
+
+              <div className="space-y-3 py-5">
+                <div className="max-w-[82%] rounded-2xl border border-[#E0E0E0]/16 bg-[#E0E0E0]/[0.06] p-4 text-sm leading-7 text-[#E0E0E0]/78">
+                  今日は「連絡を待つべきか」が頭から離れません。自分でも気持ちが分からなくて。
+                </div>
+                <div className="ml-auto max-w-[82%] rounded-2xl border border-[#4DD0E1]/26 bg-[linear-gradient(140deg,rgba(26,35,126,0.42),rgba(77,208,225,0.14))] p-4 text-sm leading-7 text-[#E0E0E0]/90">
+                  待つか動くかの前に、あなたが本当に守りたいものを言葉にしてみましょう。今いちばん怖いのは、何を失うことですか？
+                </div>
+                <div className="max-w-[74%] rounded-2xl border border-[#E0E0E0]/16 bg-[#E0E0E0]/[0.04] p-4 text-sm leading-7 text-[#E0E0E0]/70">
+                  「軽く扱われること」かもしれません。だから沈黙に過敏になっている気がします。
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-[#E0E0E0]/14 bg-[#0A0E1A]/64 px-4 py-3">
+                <p className="text-xs tracking-[0.1em] text-[#E0E0E0]/44">気持ちをもう少し書いてみる...</p>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function CtaSection() {
+  const reduced = useReducedMotion();
+
+  return (
+    <section className="px-6 pb-24 pt-12 sm:px-8 sm:pb-28 lg:px-16">
+      <div className="mx-auto max-w-[980px]">
+        <Reveal>
+          <div className="rounded-[32px] border border-[#E0E0E0]/22 bg-[linear-gradient(150deg,rgba(26,35,126,0.24),rgba(10,14,26,0.8),rgba(77,208,225,0.14))] px-6 py-14 text-center shadow-[0_28px_80px_rgba(4,7,14,0.52)] backdrop-blur-xl sm:px-10">
+            <p className={`${enSerif.className} text-xs uppercase tracking-[0.3em] text-[#E0E0E0]/56`}>Call To Action</p>
+            <h2 className={`${jaSerif.className} mt-5 text-3xl leading-tight text-[#E0E0E0] sm:text-4xl`}>いま必要な答えを、静かに受け取る。</h2>
+            <p className="mx-auto mt-5 max-w-[46ch] text-sm leading-8 tracking-[0.04em] text-[#E0E0E0]/72 sm:text-base">
+              だれかの正解ではなく、あなたが納得できる次の一歩へ。
+              今夜、honneで自分の声を確かめてください。
+            </p>
+            <m.div whileHover={reduced ? undefined : { y: -2 }} transition={{ duration: 0.35, ease: EASE }} className="mt-9">
+              <Link
+                href="/chat"
+                className="inline-flex items-center justify-center rounded-full border border-[#E0E0E0]/36 bg-[linear-gradient(120deg,rgba(26,35,126,0.75),rgba(77,208,225,0.22))] px-9 py-4 text-sm tracking-[0.12em] text-[#E0E0E0] transition duration-500 hover:border-[#4DD0E1]/76 hover:bg-[linear-gradient(120deg,rgba(26,35,126,0.82),rgba(77,208,225,0.32))]"
+              >
+                今夜、自分と向き合う
+              </Link>
+            </m.div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+export function LandingPage() {
+  return (
+    <LazyMotion features={domAnimation} strict>
+      <main className={`${bodySans.className} relative overflow-hidden bg-[#0A0E1A] text-[#E0E0E0]`}>
+        <AmbientBackdrop />
+        <div className="relative z-10">
+          <HeroSection />
+          <ConceptSection />
+          <FeaturesSection />
+          <UiPreviewSection />
+          <CtaSection />
+        </div>
+      </main>
+    </LazyMotion>
   );
 }
