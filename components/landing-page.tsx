@@ -1,45 +1,43 @@
-"use client";
+﻿"use client";
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { Cormorant_Garamond, Noto_Sans_JP, Shippori_Mincho } from "next/font/google";
-import { LazyMotion, domAnimation, m, useReducedMotion } from "framer-motion";
+import { Inter, Noto_Sans_JP } from "next/font/google";
+import { LazyMotion, domAnimation, m, useReducedMotion, useScroll, useTransform } from "framer-motion";
 
-const jaSerif = Shippori_Mincho({
-  weight: ["400", "500", "700"],
-  subsets: ["latin"],
-  display: "swap"
-});
-
-const enSerif = Cormorant_Garamond({
-  weight: ["400", "500", "600"],
-  subsets: ["latin"],
-  display: "swap"
-});
-
-const bodySans = Noto_Sans_JP({
-  weight: ["400", "500", "700"],
-  subsets: ["latin"],
-  display: "swap"
-});
+const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
+const notoSansJp = Noto_Sans_JP({ subsets: ["latin"], weight: ["400", "500", "700"], display: "swap" });
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
+const PARTICLES = [
+  { x: 7, y: 18, r: 1.8, c: "#9D00FF", d: 0.2, t: 14 },
+  { x: 16, y: 58, r: 2.4, c: "#00E5FF", d: 1.1, t: 18 },
+  { x: 22, y: 37, r: 1.6, c: "#00E5FF", d: 0.5, t: 16 },
+  { x: 31, y: 72, r: 2.1, c: "#9D00FF", d: 1.4, t: 21 },
+  { x: 38, y: 24, r: 1.7, c: "#9D00FF", d: 0.9, t: 17 },
+  { x: 47, y: 43, r: 2.6, c: "#00E5FF", d: 0.1, t: 23 },
+  { x: 54, y: 16, r: 1.5, c: "#00E5FF", d: 1.2, t: 15 },
+  { x: 61, y: 65, r: 2.2, c: "#9D00FF", d: 0.4, t: 20 },
+  { x: 69, y: 31, r: 1.8, c: "#00E5FF", d: 1.7, t: 19 },
+  { x: 76, y: 54, r: 2.8, c: "#9D00FF", d: 0.6, t: 24 },
+  { x: 82, y: 20, r: 1.4, c: "#00E5FF", d: 1.5, t: 15 },
+  { x: 89, y: 40, r: 2.3, c: "#9D00FF", d: 0.3, t: 22 },
+  { x: 93, y: 74, r: 1.9, c: "#00E5FF", d: 1.8, t: 18 }
+] as const;
+
 const FEATURES = [
   {
-    title: "不安を煽らない",
-    description: "結論を急がず、感情の温度を見極めながら静かに整理します。",
-    icon: CalmIcon
+    title: "01. 行動の科学",
+    body: "心理学に基づく独自アルゴリズムで、あなたの思考の癖と不安の起点を分析します。"
   },
   {
-    title: "AIによる正直な対話",
-    description: "耳ざわりの良い肯定よりも、いま必要な視点を誠実に返します。",
-    icon: HonestIcon
+    title: "02. 3つの次の一手",
+    body: "相談後には、明日から実行できる具体的な3つの行動案を必ず提示します。"
   },
   {
-    title: "行動のための言語化",
-    description: "曖昧な迷いを、今夜の一歩に変える短い言葉へ整えます。",
-    icon: ActionIcon
+    title: "03. AIの透明性",
+    body: "AIであることを隠さず、感情に迎合しない正直で客観的な視点を届けます。"
   }
 ] as const;
 
@@ -51,96 +49,123 @@ function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; 
       className={className}
       initial={reduced ? false : { opacity: 0, y: 28, filter: "blur(4px)" }}
       whileInView={reduced ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }}
-      viewport={{ once: true, amount: 0.28 }}
-      transition={{ duration: 0.9, delay, ease: EASE }}
+      viewport={{ once: true, amount: 0.25 }}
+      transition={{ duration: 0.85, delay, ease: EASE }}
     >
       {children}
     </m.div>
   );
 }
 
-function SectionHeading({
-  overline,
-  title,
-  description,
-  centered = false
-}: {
-  overline: string;
-  title: string;
-  description: string;
-  centered?: boolean;
-}) {
+function NeonButton({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="group relative inline-flex items-center justify-center overflow-hidden rounded-full border border-[#9D00FF]/80 bg-[linear-gradient(110deg,rgba(157,0,255,0.34),rgba(0,229,255,0.18))] px-8 py-4 text-sm font-semibold tracking-[0.12em] text-white transition duration-500 hover:border-[#00E5FF]"
+      style={{ boxShadow: "0 0 18px rgba(157,0,255,0.55), inset 0 0 12px rgba(157,0,255,0.35)" }}
+    >
+      <span
+        className="pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100"
+        style={{ boxShadow: "0 0 46px rgba(0,229,255,0.7), inset 0 0 22px rgba(0,229,255,0.38)" }}
+      />
+      <span className="relative">{label}</span>
+    </Link>
+  );
+}
+
+function SectionHead({ overline, title, body, centered = false }: { overline: string; title: string; body: string; centered?: boolean }) {
   return (
     <div className={centered ? "text-center" : ""}>
-      <p className={`${enSerif.className} text-[11px] uppercase tracking-[0.32em] text-[#E0E0E0]/55`}>{overline}</p>
-      <h2 className={`${jaSerif.className} mt-4 text-3xl leading-tight text-[#E0E0E0] sm:text-4xl`}>{title}</h2>
-      <p className="mt-5 max-w-[56ch] text-sm leading-8 tracking-[0.04em] text-[#E0E0E0]/72 sm:text-base sm:leading-8">{description}</p>
+      <p className={`${inter.className} text-xs uppercase tracking-[0.34em] text-[#00E5FF]/85`}>{overline}</p>
+      <h2 className="mt-4 text-[1.8rem] font-semibold leading-tight text-white sm:text-[2.3rem]">{title}</h2>
+      <p className="mt-5 max-w-[64ch] text-sm leading-8 tracking-[0.05em] text-white/74 sm:text-base">{body}</p>
     </div>
   );
 }
 
-function CalmIcon() {
+function AiMindIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden>
-      <path d="M4 8H20" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M6 12H18" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M8 16H16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    <svg viewBox="0 0 220 220" className="h-full w-full" aria-hidden>
+      <defs>
+        <radialGradient id="coreGlow" cx="50%" cy="40%" r="70%">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.85" />
+          <stop offset="42%" stopColor="#00E5FF" stopOpacity="0.45" />
+          <stop offset="100%" stopColor="#9D00FF" stopOpacity="0.15" />
+        </radialGradient>
+      </defs>
+      <circle cx="110" cy="110" r="74" fill="url(#coreGlow)" />
+      <path d="M67 112C67 88 86 69 110 69C134 69 153 88 153 112C153 136 134 155 110 155C86 155 67 136 67 112Z" fill="none" stroke="#9D00FF" strokeWidth="2.3" />
+      <path d="M84 122C95 129 125 129 136 122" stroke="#00E5FF" strokeWidth="2.2" strokeLinecap="round" />
+      <circle cx="95" cy="104" r="6" fill="#00E5FF" />
+      <circle cx="125" cy="104" r="6" fill="#9D00FF" />
+      <path d="M43 110H58M162 110H177M110 43V58M110 162V177" stroke="#00E5FF" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }
 
-function HonestIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden>
-      <path d="M12 3L19 7V12C19 16.2 16.5 19.8 12 21C7.5 19.8 5 16.2 5 12V7L12 3Z" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M9 12.5L11.2 14.7L15 10.9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ActionIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden>
-      <path d="M5 18L18 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M10 5H18V13" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="7" cy="17" r="2" stroke="currentColor" strokeWidth="1.4" />
-    </svg>
-  );
-}
-
-function AmbientBackdrop() {
+function FlowingBackground() {
   const reduced = useReducedMotion();
+  const { scrollY } = useScroll();
+  const layerOneY = useTransform(scrollY, [0, 1800], [0, -160]);
+  const layerTwoY = useTransform(scrollY, [0, 1800], [0, 130]);
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 bg-[#03001C]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_14%,rgba(157,0,255,0.18),transparent_45%),radial-gradient(circle_at_84%_26%,rgba(0,229,255,0.16),transparent_42%),radial-gradient(circle_at_50%_96%,rgba(157,0,255,0.14),transparent_48%)]" />
+
       <m.div
-        className="absolute -left-24 top-20 h-72 w-72 rounded-full blur-[100px]"
-        style={{ background: "radial-gradient(circle, rgba(77,208,225,0.34), rgba(26,35,126,0.06) 70%)" }}
-        animate={reduced ? undefined : { x: [0, 24, 0], y: [0, -18, 0], opacity: [0.35, 0.56, 0.35] }}
+        className="absolute -left-20 top-[-40px] h-80 w-80 rounded-full blur-[120px]"
+        style={{ background: "radial-gradient(circle, rgba(157,0,255,0.55), rgba(3,0,28,0.02) 70%)" }}
+        animate={reduced ? undefined : { x: [0, 28, 0], y: [0, 24, 0], opacity: [0.4, 0.58, 0.4] }}
         transition={reduced ? undefined : { duration: 18, repeat: Infinity, ease: "easeInOut" }}
       />
       <m.div
-        className="absolute right-[-90px] top-[28%] h-80 w-80 rounded-full blur-[120px]"
-        style={{ background: "radial-gradient(circle, rgba(26,35,126,0.46), rgba(77,208,225,0.08) 72%)" }}
-        animate={reduced ? undefined : { x: [0, -20, 0], y: [0, 22, 0], opacity: [0.22, 0.42, 0.22] }}
-        transition={reduced ? undefined : { duration: 22, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute right-[-90px] top-[18%] h-[420px] w-[420px] rounded-full blur-[140px]"
+        style={{ background: "radial-gradient(circle, rgba(0,229,255,0.44), rgba(3,0,28,0.03) 70%)" }}
+        animate={reduced ? undefined : { x: [0, -22, 0], y: [0, 20, 0], opacity: [0.25, 0.45, 0.25] }}
+        transition={reduced ? undefined : { duration: 20, repeat: Infinity, ease: "easeInOut" }}
       />
-      <m.div
-        className="absolute bottom-[-120px] left-1/2 h-72 w-[520px] -translate-x-1/2 rounded-full blur-[110px]"
-        style={{ background: "radial-gradient(circle, rgba(77,208,225,0.18), rgba(10,14,26,0) 72%)" }}
-        animate={reduced ? undefined : { scale: [1, 1.12, 1], opacity: [0.2, 0.3, 0.2] }}
-        transition={reduced ? undefined : { duration: 24, repeat: Infinity, ease: "easeInOut" }}
-      />
+
+      <m.svg style={{ y: layerOneY }} viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full opacity-90">
+        {PARTICLES.map((p, idx) => (
+          <m.circle
+            key={`p1-${p.x}-${p.y}`}
+            cx={p.x}
+            cy={p.y}
+            r={p.r}
+            fill={p.c}
+            animate={reduced ? undefined : { cx: [p.x, p.x + (idx % 2 === 0 ? 1.4 : -1.1), p.x], cy: [p.y, p.y + 2.6, p.y], opacity: [0.36, 0.95, 0.36] }}
+            transition={reduced ? undefined : { duration: p.t, delay: p.d, repeat: Infinity, ease: "easeInOut" }}
+            style={{ filter: `drop-shadow(0 0 10px ${p.c})` }}
+          />
+        ))}
+      </m.svg>
+
+      <m.svg style={{ y: layerTwoY }} viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full opacity-60">
+        {PARTICLES.map((p, idx) => (
+          <m.circle
+            key={`p2-${p.x}-${p.y}`}
+            cx={p.x + (idx % 3 === 0 ? 1.8 : -1.6)}
+            cy={p.y + (idx % 4 === 0 ? -3 : 2)}
+            r={p.r * 0.62}
+            fill={idx % 2 === 0 ? "#9D00FF" : "#00E5FF"}
+            animate={reduced ? undefined : { cy: [p.y, p.y - 2.1, p.y], opacity: [0.2, 0.8, 0.2] }}
+            transition={reduced ? undefined : { duration: p.t + 6, delay: p.d, repeat: Infinity, ease: "easeInOut" }}
+            style={{ filter: "blur(0.6px)" }}
+          />
+        ))}
+      </m.svg>
+
       <div
-        className="absolute inset-0 opacity-[0.12]"
+        className="absolute inset-0 opacity-[0.14]"
         style={{
           backgroundImage:
-            "radial-gradient(rgba(224,224,224,0.9) 0.55px, transparent 0.55px), radial-gradient(rgba(224,224,224,0.32) 0.4px, transparent 0.4px)",
-          backgroundSize: "3px 3px, 7px 7px",
-          backgroundPosition: "0 0, 1px 2px"
+            "linear-gradient(rgba(157,0,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.45) 1px, transparent 1px)",
+          backgroundSize: "48px 48px, 48px 48px"
         }}
       />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,14,26,0.08)_0%,rgba(10,14,26,0.48)_56%,rgba(10,14,26,0.86)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,0,28,0.12)_0%,rgba(3,0,28,0.6)_58%,rgba(3,0,28,0.95)_100%)]" />
     </div>
   );
 }
@@ -149,47 +174,45 @@ function HeroSection() {
   const reduced = useReducedMotion();
 
   return (
-    <section className="relative flex min-h-[100svh] items-center px-6 pb-20 pt-14 sm:px-8 lg:px-16">
-      <div className="mx-auto grid w-full max-w-[1180px] items-center gap-14 lg:grid-cols-[1.06fr_0.94fr]">
+    <section className="relative flex min-h-[100svh] items-center px-5 pb-20 pt-14 sm:px-8 lg:px-16">
+      <div className="mx-auto grid w-full max-w-[1180px] items-center gap-14 lg:grid-cols-[1.04fr_0.96fr]">
         <Reveal className="max-w-[620px]">
-          <p className={`${enSerif.className} text-xs uppercase tracking-[0.38em] text-[#E0E0E0]/58`}>honne</p>
-          <h1 className={`${jaSerif.className} mt-6 text-[clamp(2rem,6vw,4.3rem)] leading-[1.2] text-[#E0E0E0]`}>
-            「相手の気持ち」より、
+          <p className={`${inter.className} text-xs uppercase tracking-[0.32em] text-[#00E5FF]/86`}>honne / behavior science ai</p>
+          <h1 className="mt-6 text-[clamp(2rem,6vw,4.1rem)] font-semibold leading-[1.2] text-white">
+            今夜は、ただ
             <br />
-            あなたの「本音」を。
+            「本音」を話すだけでいい。
           </h1>
-          <p className="mt-7 max-w-[44ch] text-sm leading-8 tracking-[0.04em] text-[#E0E0E0]/74 sm:text-base">
-            honneは、感情を断定するためのサービスではありません。
-            自分でも見失いやすい気持ちを、透明な対話で整える知的な内省体験です。
+          <p className="mt-6 max-w-[46ch] text-sm leading-8 tracking-[0.05em] text-white/80 sm:text-base">
+            不安な夜に、もう迷わない。明日、あなたが踏み出すべき「次の一手」を、AIが行動心理学から導き出します。
           </p>
+          <div className="mt-9">
+            <NeonButton href="/chat" label="相談してみる" />
+          </div>
         </Reveal>
 
         <Reveal delay={0.12} className="flex justify-center lg:justify-end">
           <m.div
-            className="relative h-[310px] w-[310px] sm:h-[420px] sm:w-[420px]"
+            className="relative h-[300px] w-[300px] sm:h-[410px] sm:w-[410px]"
             animate={reduced ? undefined : { y: [0, -8, 0] }}
             transition={reduced ? undefined : { duration: 10, repeat: Infinity, ease: "easeInOut" }}
           >
-            <div className="absolute inset-0 rounded-full border border-[#E0E0E0]/20" />
             <m.div
-              className="absolute inset-6 rounded-full border border-[#4DD0E1]/26"
+              className="absolute inset-0 rounded-full border border-[#9D00FF]/50"
               animate={reduced ? undefined : { rotate: 360 }}
-              transition={reduced ? undefined : { duration: 64, repeat: Infinity, ease: "linear" }}
+              transition={reduced ? undefined : { duration: 52, repeat: Infinity, ease: "linear" }}
             />
             <m.div
-              className="absolute inset-14 rounded-full border border-[#1A237E]/44"
+              className="absolute inset-8 rounded-full border border-[#00E5FF]/46"
               animate={reduced ? undefined : { rotate: -360 }}
-              transition={reduced ? undefined : { duration: 78, repeat: Infinity, ease: "linear" }}
+              transition={reduced ? undefined : { duration: 68, repeat: Infinity, ease: "linear" }}
             />
             <div
-              className="absolute left-1/2 top-1/2 h-[170px] w-[170px] -translate-x-1/2 -translate-y-1/2 rounded-[42%] blur-[1px]"
-              style={{
-                background:
-                  "radial-gradient(circle at 35% 28%, rgba(224,224,224,0.78) 0%, rgba(77,208,225,0.25) 42%, rgba(26,35,126,0.2) 72%, rgba(10,14,26,0.12) 100%)",
-                boxShadow: "0 0 100px rgba(77,208,225,0.18), 0 0 60px rgba(26,35,126,0.22)"
-              }}
-            />
-            <div className="absolute left-1/2 top-[64%] h-24 w-52 -translate-x-1/2 rounded-full bg-[#4DD0E1]/18 blur-3xl" />
+              className="absolute inset-14 rounded-full bg-[#040028]/85 p-10"
+              style={{ boxShadow: "0 0 60px rgba(157,0,255,0.45), inset 0 0 40px rgba(0,229,255,0.25)" }}
+            >
+              <AiMindIcon />
+            </div>
           </m.div>
         </Reveal>
       </div>
@@ -199,28 +222,31 @@ function HeroSection() {
 
 function ConceptSection() {
   return (
-    <section className="px-6 py-16 sm:px-8 sm:py-24 lg:px-16">
+    <section className="px-5 py-16 sm:px-8 sm:py-24 lg:px-16">
       <div className="mx-auto max-w-[1080px]">
         <Reveal>
-          <SectionHeading
-            overline="Concept"
-            title="占いでもコーチングでもない、第三の選択肢。"
-            description="honneは“当たり”を示すのではなく、あなたの解像度を高めます。感情を見つめ、迷いを言葉にし、未来へ向かう手触りを手元に残します。"
+          <SectionHead
+            overline="Concept / カクテルパーティー効果 × 希少性原理"
+            title="占いでも、共感だけでもない。"
+            body="恋愛で不安になった時に必要なのは『相手の気持ちの推測』ではなく、あなた自身の感情整理と具体的な行動指針。honneは、世界で唯一のあなた専用 行動科学AIとして、次の一歩に集中できる状態をつくります。"
           />
         </Reveal>
 
-        <Reveal delay={0.12} className="mt-12 grid gap-8 border-t border-[#E0E0E0]/20 pt-10 lg:grid-cols-3">
-          <div>
-            <p className={`${enSerif.className} text-xs uppercase tracking-[0.24em] text-[#E0E0E0]/45`}>Fortune telling</p>
-            <p className="mt-3 text-sm leading-8 tracking-[0.04em] text-[#E0E0E0]/64">結果を受け取る体験</p>
+        <Reveal delay={0.1} className="mt-10 grid gap-4 lg:grid-cols-3">
+          <div className="rounded-2xl border border-white/12 bg-white/[0.02] px-5 py-5">
+            <p className={`${inter.className} text-xs uppercase tracking-[0.2em] text-[#00E5FF]/80`}>Emotion</p>
+            <p className="mt-3 text-sm leading-7 text-white/76">不安の構造を言語化し、焦りを減らす。</p>
           </div>
-          <div>
-            <p className={`${enSerif.className} text-xs uppercase tracking-[0.24em] text-[#E0E0E0]/45`}>Coaching</p>
-            <p className="mt-3 text-sm leading-8 tracking-[0.04em] text-[#E0E0E0]/64">目標へ進む体験</p>
+          <div className="rounded-2xl border border-white/12 bg-white/[0.02] px-5 py-5">
+            <p className={`${inter.className} text-xs uppercase tracking-[0.2em] text-[#9D00FF]/90`}>Behavior</p>
+            <p className="mt-3 text-sm leading-7 text-white/76">行動の優先順位を決め、明日の迷いをなくす。</p>
           </div>
-          <div>
-            <p className={`${enSerif.className} text-xs uppercase tracking-[0.24em] text-[#4DD0E1]/88`}>honne</p>
-            <p className="mt-3 text-sm leading-8 tracking-[0.04em] text-[#E0E0E0]/86">自分を理解し、次の一手を選ぶ体験</p>
+          <div
+            className="rounded-2xl border border-[#00E5FF]/35 bg-[linear-gradient(130deg,rgba(157,0,255,0.2),rgba(0,229,255,0.08))] px-5 py-5"
+            style={{ boxShadow: "0 0 28px rgba(0,229,255,0.2)" }}
+          >
+            <p className={`${inter.className} text-xs uppercase tracking-[0.2em] text-white`}>honne</p>
+            <p className="mt-3 text-sm leading-7 text-white/90">今夜の感情を、明日の行動エネルギーへ変換する。</p>
           </div>
         </Reveal>
       </div>
@@ -230,25 +256,25 @@ function ConceptSection() {
 
 function FeaturesSection() {
   return (
-    <section className="px-6 py-16 sm:px-8 sm:py-24 lg:px-16">
+    <section className="px-5 py-16 sm:px-8 sm:py-24 lg:px-16">
       <div className="mx-auto max-w-[1080px]">
         <Reveal>
-          <SectionHeading
-            overline="Features"
-            title="静けさを保ったまま、判断に必要な明るさを。"
-            description="感情を刺激しすぎず、曖昧さを残しすぎない。対話はいつも、あなたの主体性を中心に設計されています。"
+          <SectionHead
+            overline="Features / アンカリング効果"
+            title="行動に直結する設計。"
+            body="抽象論では終わらせず、具体的な数値・具体的な行動へ着地させることを前提に設計されています。"
           />
         </Reveal>
 
-        <div className="mt-12 grid gap-8 lg:grid-cols-3 lg:gap-12">
-          {FEATURES.map((item, index) => (
-            <Reveal key={item.title} delay={index * 0.1}>
-              <article className="border-t border-[#E0E0E0]/24 pt-6">
-                <div className="mb-5 inline-flex rounded-full border border-[#E0E0E0]/34 bg-[#E0E0E0]/[0.06] p-2 text-[#4DD0E1]">
-                  <item.icon />
-                </div>
-                <h3 className={`${jaSerif.className} text-2xl text-[#E0E0E0]`}>{item.title}</h3>
-                <p className="mt-4 text-sm leading-8 tracking-[0.04em] text-[#E0E0E0]/70">{item.description}</p>
+        <div className="mt-11 grid gap-5 lg:grid-cols-3">
+          {FEATURES.map((feature, idx) => (
+            <Reveal key={feature.title} delay={idx * 0.1}>
+              <article
+                className="h-full rounded-2xl border border-[#9D00FF]/30 bg-[linear-gradient(160deg,rgba(157,0,255,0.14),rgba(255,255,255,0.02))] px-5 py-6"
+                style={{ boxShadow: "0 0 24px rgba(157,0,255,0.22)" }}
+              >
+                <h3 className="text-lg font-semibold text-white">{feature.title}</h3>
+                <p className="mt-4 text-sm leading-8 tracking-[0.04em] text-white/76">{feature.body}</p>
               </article>
             </Reveal>
           ))}
@@ -260,42 +286,49 @@ function FeaturesSection() {
 
 function UiPreviewSection() {
   return (
-    <section className="px-6 py-16 sm:px-8 sm:py-24 lg:px-16">
+    <section className="px-5 py-16 sm:px-8 sm:py-24 lg:px-16">
       <div className="mx-auto max-w-[1080px]">
         <Reveal>
-          <SectionHeading
-            overline="UI Preview"
-            title="余白のある対話で、感情を焦らせない。"
-            description="ミニマルな画面設計により、答えよりも対話の質へ意識を向けられるインターフェースです。"
+          <SectionHead
+            overline="UI Preview / 社会的証明"
+            title="不安が、タスクへ変わる対話。"
+            body="対話のゴールは安心感だけではなく、具体的な行動に移せる状態。チャットはネオンの導線で思考の流れを視覚化します。"
             centered
           />
         </Reveal>
 
-        <Reveal delay={0.15} className="mt-12 flex justify-center">
-          <div className="w-full max-w-[720px] rounded-[30px] border border-[#E0E0E0]/24 bg-[#E0E0E0]/[0.06] p-4 shadow-[0_40px_100px_rgba(5,8,16,0.55)] backdrop-blur-2xl sm:p-6">
-            <div className="rounded-3xl border border-[#E0E0E0]/18 bg-[linear-gradient(160deg,rgba(10,14,26,0.8),rgba(26,35,126,0.22))] p-4 sm:p-6">
-              <div className="flex items-center justify-between border-b border-[#E0E0E0]/14 pb-4">
+        <Reveal delay={0.12} className="mt-12 flex justify-center">
+          <div className="w-full max-w-[760px] rounded-[28px] border border-[#00E5FF]/28 bg-[#070022]/70 p-4 backdrop-blur-xl sm:p-6">
+            <div className="rounded-3xl border border-white/12 bg-[linear-gradient(160deg,rgba(3,0,28,0.8),rgba(157,0,255,0.12),rgba(0,229,255,0.08))] p-4 sm:p-6">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
-                  <p className={`${enSerif.className} text-xs uppercase tracking-[0.24em] text-[#E0E0E0]/58`}>honne session</p>
-                  <p className="mt-1 text-xs tracking-[0.06em] text-[#E0E0E0]/58">透明なAI対話</p>
+                  <p className={`${inter.className} text-[11px] uppercase tracking-[0.2em] text-[#00E5FF]/88`}>honne live dialog</p>
+                  <p className="mt-1 text-xs tracking-[0.08em] text-white/62">行動心理学モード</p>
                 </div>
-                <span className="rounded-full border border-[#4DD0E1]/35 bg-[#4DD0E1]/10 px-3 py-1 text-[10px] tracking-[0.18em] text-[#4DD0E1]">LIVE</span>
+                <span
+                  className="rounded-full border border-[#9D00FF]/75 bg-[#9D00FF]/18 px-3 py-1 text-[10px] tracking-[0.18em] text-white"
+                  style={{ boxShadow: "0 0 14px rgba(157,0,255,0.5)" }}
+                >
+                  ACTIVE
+                </span>
               </div>
 
-              <div className="space-y-3 py-5">
-                <div className="max-w-[82%] rounded-2xl border border-[#E0E0E0]/16 bg-[#E0E0E0]/[0.06] p-4 text-sm leading-7 text-[#E0E0E0]/78">
-                  今日は「連絡を待つべきか」が頭から離れません。自分でも気持ちが分からなくて。
+              <div className="space-y-3 py-5 text-sm leading-7">
+                <div className="max-w-[84%] rounded-2xl border border-white/12 bg-white/[0.04] p-4 text-white/78">
+                  返信がないだけで、ずっと最悪の展開を考えてしまいます。
                 </div>
-                <div className="ml-auto max-w-[82%] rounded-2xl border border-[#4DD0E1]/26 bg-[linear-gradient(140deg,rgba(26,35,126,0.42),rgba(77,208,225,0.14))] p-4 text-sm leading-7 text-[#E0E0E0]/90">
-                  待つか動くかの前に、あなたが本当に守りたいものを言葉にしてみましょう。今いちばん怖いのは、何を失うことですか？
-                </div>
-                <div className="max-w-[74%] rounded-2xl border border-[#E0E0E0]/16 bg-[#E0E0E0]/[0.04] p-4 text-sm leading-7 text-[#E0E0E0]/70">
-                  「軽く扱われること」かもしれません。だから沈黙に過敏になっている気がします。
+                <div className="ml-auto max-w-[84%] rounded-2xl border border-[#00E5FF]/36 bg-[linear-gradient(140deg,rgba(0,229,255,0.15),rgba(157,0,255,0.15))] p-4 text-white/90">
+                  その不安は「拒絶される損失」を過大評価している状態です。明日の行動を3つに分解します。
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-[#E0E0E0]/14 bg-[#0A0E1A]/64 px-4 py-3">
-                <p className="text-xs tracking-[0.1em] text-[#E0E0E0]/44">気持ちをもう少し書いてみる...</p>
+              <div className="rounded-2xl border border-[#9D00FF]/35 bg-[#04001F]/80 p-4">
+                <p className={`${inter.className} text-[11px] uppercase tracking-[0.16em] text-[#00E5FF]/85`}>明日の3つの次の一手</p>
+                <ol className="mt-3 space-y-2 text-sm leading-7 text-white/82">
+                  <li>1. 朝に2分だけ感情メモを書く</li>
+                  <li>2. 夕方まで連絡を待ち、夜に短文を1通送る</li>
+                  <li>3. 返信の有無で翌日の行動プランを分岐する</li>
+                </ol>
               </div>
             </div>
           </div>
@@ -305,28 +338,23 @@ function UiPreviewSection() {
   );
 }
 
-function CtaSection() {
-  const reduced = useReducedMotion();
-
+function FinalCtaSection() {
   return (
-    <section className="px-6 pb-24 pt-12 sm:px-8 sm:pb-28 lg:px-16">
-      <div className="mx-auto max-w-[980px]">
+    <section className="px-5 pb-24 pt-12 sm:px-8 sm:pb-28 lg:px-16">
+      <div className="mx-auto max-w-[960px]">
         <Reveal>
-          <div className="rounded-[32px] border border-[#E0E0E0]/22 bg-[linear-gradient(150deg,rgba(26,35,126,0.24),rgba(10,14,26,0.8),rgba(77,208,225,0.14))] px-6 py-14 text-center shadow-[0_28px_80px_rgba(4,7,14,0.52)] backdrop-blur-xl sm:px-10">
-            <p className={`${enSerif.className} text-xs uppercase tracking-[0.3em] text-[#E0E0E0]/56`}>Call To Action</p>
-            <h2 className={`${jaSerif.className} mt-5 text-3xl leading-tight text-[#E0E0E0] sm:text-4xl`}>いま必要な答えを、静かに受け取る。</h2>
-            <p className="mx-auto mt-5 max-w-[46ch] text-sm leading-8 tracking-[0.04em] text-[#E0E0E0]/72 sm:text-base">
-              だれかの正解ではなく、あなたが納得できる次の一歩へ。
-              今夜、honneで自分の声を確かめてください。
+          <div
+            className="rounded-[30px] border border-[#9D00FF]/36 bg-[linear-gradient(150deg,rgba(157,0,255,0.22),rgba(3,0,28,0.78),rgba(0,229,255,0.2))] px-6 py-14 text-center"
+            style={{ boxShadow: "0 0 38px rgba(157,0,255,0.38), inset 0 0 24px rgba(0,229,255,0.18)" }}
+          >
+            <p className={`${inter.className} text-xs uppercase tracking-[0.32em] text-[#00E5FF]/85`}>Loss Aversion Trigger</p>
+            <h2 className="mt-5 text-[1.8rem] font-semibold leading-tight text-white sm:text-[2.35rem]">今夜、その不安を確実な行動に変える。</h2>
+            <p className="mx-auto mt-5 max-w-[50ch] text-sm leading-8 tracking-[0.05em] text-white/78 sm:text-base">
+              明日も同じ不安を繰り返す前に、行動のヒントを受け取る。honneは、あなたの一歩を止めないためのAIです。
             </p>
-            <m.div whileHover={reduced ? undefined : { y: -2 }} transition={{ duration: 0.35, ease: EASE }} className="mt-9">
-              <Link
-                href="/chat"
-                className="inline-flex items-center justify-center rounded-full border border-[#E0E0E0]/36 bg-[linear-gradient(120deg,rgba(26,35,126,0.75),rgba(77,208,225,0.22))] px-9 py-4 text-sm tracking-[0.12em] text-[#E0E0E0] transition duration-500 hover:border-[#4DD0E1]/76 hover:bg-[linear-gradient(120deg,rgba(26,35,126,0.82),rgba(77,208,225,0.32))]"
-              >
-                今夜、自分と向き合う
-              </Link>
-            </m.div>
+            <div className="mt-10 flex justify-center">
+              <NeonButton href="/chat" label="行動のヒントを受け取る" />
+            </div>
           </div>
         </Reveal>
       </div>
@@ -337,14 +365,14 @@ function CtaSection() {
 export function LandingPage() {
   return (
     <LazyMotion features={domAnimation} strict>
-      <main className={`${bodySans.className} relative overflow-hidden bg-[#0A0E1A] text-[#E0E0E0]`}>
-        <AmbientBackdrop />
+      <main className={`${inter.className} ${notoSansJp.className} relative overflow-hidden bg-[#03001C] text-white`}>
+        <FlowingBackground />
         <div className="relative z-10">
           <HeroSection />
           <ConceptSection />
           <FeaturesSection />
           <UiPreviewSection />
-          <CtaSection />
+          <FinalCtaSection />
         </div>
       </main>
     </LazyMotion>
