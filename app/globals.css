@@ -561,3 +561,286 @@ textarea {
     animation: none !important;
   }
 }
+
+/* ── LP Redesign: Violet Library Theme ─────────────────── */
+@keyframes honneAurora {
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.42; }
+  50% { transform: translate3d(4px, -8px, 0) scale(1.04); opacity: 0.68; }
+  100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.42; }
+}
+
+@keyframes honneOrbFloat {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.lp-night-bg {
+  background:
+    radial-gradient(70% 50% at 76% 15%, rgba(43, 15, 107, 0.52), transparent 72%),
+    radial-gradient(66% 48% at 20% 18%, rgba(110, 44, 255, 0.2), transparent 72%),
+    linear-gradient(160deg, #0b0520 0%, #17062f 42%, #24084a 70%, #160733 100%);
+}
+
+.lp-night-bg__stars::before {
+  background-image:
+    radial-gradient(circle at 14% 22%, rgba(247, 243, 255, 0.8) 0.7px, transparent 1.4px),
+    radial-gradient(circle at 72% 34%, rgba(255, 120, 223, 0.7) 0.8px, transparent 1.5px),
+    radial-gradient(circle at 40% 66%, rgba(118, 231, 255, 0.66) 0.7px, transparent 1.4px),
+    radial-gradient(circle at 82% 82%, rgba(215, 157, 255, 0.8) 0.7px, transparent 1.4px);
+  opacity: 0.3;
+}
+
+.lp-night-bg__grid {
+  opacity: 0.04;
+}
+
+.lp-night-bg__mist {
+  background:
+    radial-gradient(74% 44% at 16% 26%, rgba(143, 68, 255, 0.24) 0%, rgba(143, 68, 255, 0) 72%),
+    radial-gradient(60% 38% at 78% 32%, rgba(176, 92, 255, 0.24) 0%, rgba(176, 92, 255, 0) 74%),
+    radial-gradient(48% 34% at 56% 20%, rgba(255, 120, 223, 0.12) 0%, rgba(255, 120, 223, 0) 72%);
+  animation: honneAurora 18s ease-in-out infinite;
+}
+
+.lp-night-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 100% at 50% 44%, transparent 52%, rgba(5, 3, 18, 0.58) 100%);
+  pointer-events: none;
+}
+
+.honne-logo {
+  font-family: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  letter-spacing: 0.02em;
+}
+
+.honne-section-title {
+  font-family: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  font-weight: 600;
+}
+
+.honne-hero-title {
+  text-wrap: balance;
+}
+
+.honne-glass-card {
+  border-radius: 24px;
+  border: 1px solid rgba(176, 92, 255, 0.25);
+  background: rgba(25, 10, 60, 0.55);
+  backdrop-filter: blur(18px);
+  box-shadow: inset 0 0 0 1px rgba(201, 164, 92, 0.16), inset 0 0 28px rgba(143, 68, 255, 0.15);
+}
+
+.honne-cta-panel {
+  border-radius: 28px;
+  border: 1px solid rgba(176, 92, 255, 0.3);
+  background: linear-gradient(150deg, rgba(176, 92, 255, 0.2), rgba(13, 7, 34, 0.88), rgba(255, 120, 223, 0.1));
+  box-shadow: 0 0 42px rgba(143, 68, 255, 0.28), inset 0 0 20px rgba(201, 164, 92, 0.12);
+}
+
+.honne-feeling-option {
+  border-radius: 14px;
+  border: 1px solid rgba(176, 92, 255, 0.26);
+  background: rgba(18, 8, 46, 0.72);
+  color: #f8f3ff;
+  padding: 0.75rem 0.95rem;
+  text-align: left;
+  font-size: 0.9rem;
+  transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+}
+
+.honne-feeling-option:hover {
+  transform: translateY(-1px);
+  border-color: rgba(215, 157, 255, 0.62);
+  box-shadow: 0 0 20px rgba(176, 92, 255, 0.25);
+}
+
+.honne-feeling-option--active {
+  border-color: rgba(255, 120, 223, 0.78);
+  box-shadow: 0 0 22px rgba(176, 92, 255, 0.4), inset 0 0 18px rgba(255, 120, 223, 0.16);
+}
+
+.honne-draw-button {
+  border-radius: 9999px;
+  border: 1px solid rgba(201, 164, 92, 0.45);
+  background: linear-gradient(130deg, rgba(176, 92, 255, 0.35), rgba(123, 109, 255, 0.28));
+  color: #f8f3ff;
+  padding: 0.72rem 1.25rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.honne-mini-card {
+  width: 132px;
+  height: 192px;
+  border-radius: 18px;
+  perspective: 900px;
+}
+
+.honne-mini-card__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.8s ease;
+}
+
+.honne-mini-card--revealed .honne-mini-card__inner {
+  transform: rotateY(180deg);
+}
+
+.honne-mini-card__face {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.honne-mini-card__face--back {
+  background: linear-gradient(180deg, #200744, #2d0b5a);
+  border: 1px solid rgba(201, 164, 92, 0.44);
+  box-shadow: inset 0 0 0 1px rgba(201, 164, 92, 0.2), 0 0 24px rgba(143, 68, 255, 0.25);
+}
+
+.honne-mini-card__face--front {
+  transform: rotateY(180deg);
+  background: linear-gradient(180deg, rgba(35, 10, 74, 0.96), rgba(24, 8, 52, 0.96));
+  border: 1px solid rgba(201, 164, 92, 0.56);
+  box-shadow: inset 0 0 0 1px rgba(201, 164, 92, 0.24), 0 0 24px rgba(176, 92, 255, 0.32);
+}
+
+.honne-mini-card__glyph {
+  font-size: 1.5rem;
+  color: #d79dff;
+  text-shadow: 0 0 10px rgba(176, 92, 255, 0.75);
+}
+
+.honne-mini-card__name {
+  margin-top: 0.55rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: #f8f3ff;
+}
+
+.honne-trust-chip {
+  border-radius: 9999px;
+  border: 1px solid rgba(176, 92, 255, 0.26);
+  background: rgba(25, 10, 60, 0.52);
+  padding: 0.72rem 1rem;
+  text-align: center;
+  color: #f7f3ff;
+  font-size: 0.88rem;
+  backdrop-filter: blur(12px);
+}
+
+.honne-crystal-scene {
+  width: min(90vw, 520px);
+  aspect-ratio: 1 / 1;
+  animation: honneOrbFloat 12s ease-in-out infinite;
+}
+
+.honne-scene-moon {
+  position: absolute;
+  top: 4%;
+  right: 12%;
+  width: 54px;
+  height: 54px;
+  border-radius: 9999px;
+  border: 1px solid rgba(247, 243, 255, 0.26);
+  background: radial-gradient(circle at 35% 35%, rgba(247, 243, 255, 0.82), rgba(215, 157, 255, 0.4), rgba(215, 157, 255, 0.1));
+  box-shadow: 0 0 24px rgba(215, 157, 255, 0.35);
+}
+
+.honne-scene-library {
+  position: absolute;
+  inset: auto 8% 11% 8%;
+  height: 16%;
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(16, 9, 37, 0.1), rgba(16, 9, 37, 0.9)),
+    repeating-linear-gradient(90deg, rgba(201, 164, 92, 0.2) 0 2px, rgba(22, 10, 48, 0) 2px 15px);
+  border: 1px solid rgba(201, 164, 92, 0.24);
+}
+
+.honne-scene-candle {
+  position: absolute;
+  bottom: 14%;
+  width: 10px;
+  height: 36px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(201, 164, 92, 0.72), rgba(138, 106, 50, 0.7));
+  box-shadow: 0 0 14px rgba(201, 164, 92, 0.34);
+}
+
+.honne-scene-candle::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  width: 8px;
+  height: 10px;
+  transform: translateX(-50%);
+  border-radius: 50% 50% 50% 50%;
+  background: radial-gradient(circle at 50% 30%, rgba(255, 248, 220, 0.95), rgba(255, 120, 223, 0.68) 65%, rgba(255, 120, 223, 0) 100%);
+}
+
+.honne-scene-candle--left {
+  left: 16%;
+}
+
+.honne-scene-candle--right {
+  right: 16%;
+}
+
+.honne-crystal-stand {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  width: 44%;
+  height: 16%;
+  transform: translateX(-50%);
+  border-radius: 9999px 9999px 40% 40%;
+  border: 1px solid rgba(201, 164, 92, 0.55);
+  background:
+    radial-gradient(120% 80% at 50% 30%, rgba(201, 164, 92, 0.6), rgba(138, 106, 50, 0.94) 52%, rgba(60, 42, 20, 0.96) 100%);
+  box-shadow: 0 12px 26px rgba(18, 9, 40, 0.65), inset 0 0 14px rgba(247, 243, 255, 0.24);
+}
+
+.honne-crystal-ring {
+  border-color: rgba(201, 164, 92, 0.3);
+}
+
+.honne-crystal {
+  inset: 16% 20% 24%;
+  box-shadow: 0 0 46px rgba(176, 92, 255, 0.45), 0 0 92px rgba(176, 92, 255, 0.25), inset 0 0 32px rgba(255, 120, 223, 0.26);
+}
+
+.honne-crystal-aura {
+  inset: 14% 18% 20%;
+}
+
+.honne-crystal-face i {
+  background: rgba(118, 231, 255, 0.85);
+}
+
+.honne-crystal-face b {
+  border-bottom-color: rgba(255, 120, 223, 0.84);
+}
+
+@media (max-width: 1023px) {
+  .honne-crystal-scene {
+    width: min(88vw, 420px);
+  }
+}
+
+@media (max-width: 640px) {
+  .honne-crystal-scene {
+    width: min(84vw, 330px);
+  }
+}
