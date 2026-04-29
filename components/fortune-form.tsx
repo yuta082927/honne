@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { DEPTH_COST, FORTUNE_MODES, GENDER_OPTIONS, type FortuneMode, type ResponseDepth } from "@/lib/constants";
@@ -169,7 +169,7 @@ function BirthDateSelect({
         <select
           value={year}
           onChange={(event) => setYear(event.target.value)}
-          className="w-full rounded-lg px-2 py-1.5 text-xs text-star outline-none"
+          className="w-full rounded-lg px-3 py-2 text-sm text-star outline-none"
           style={{ border: "1px solid rgba(168,139,250,0.25)", background: "#1a1030" }}
           disabled={disabled}
         >
@@ -183,7 +183,7 @@ function BirthDateSelect({
         <select
           value={month}
           onChange={(event) => setMonth(event.target.value)}
-          className="w-full rounded-lg px-2 py-1.5 text-xs text-star outline-none"
+          className="w-full rounded-lg px-3 py-2 text-sm text-star outline-none"
           style={{ border: "1px solid rgba(168,139,250,0.25)", background: "#1a1030" }}
           disabled={disabled}
         >
@@ -197,7 +197,7 @@ function BirthDateSelect({
         <select
           value={day}
           onChange={(event) => setDay(event.target.value)}
-          className="w-full rounded-lg px-2 py-1.5 text-xs text-star outline-none"
+          className="w-full rounded-lg px-3 py-2 text-sm text-star outline-none"
           style={{ border: "1px solid rgba(168,139,250,0.25)", background: "#1a1030" }}
           disabled={disabled}
         >
@@ -438,19 +438,19 @@ export function FortuneForm() {
   ];
 
   return (
-    <main className="h-[100dvh] overflow-hidden text-star" style={{ background: "#0d0a1a" }}>
-      <section className="mx-auto flex h-full w-full max-w-5xl flex-col">
-        <header className="shrink-0 px-3 py-3 sm:px-5" style={{ borderBottom: "1px solid rgba(168,139,250,0.2)", background: "rgba(13,10,26,0.95)" }}>
+    <main className="min-h-[100dvh] overflow-x-hidden text-star" style={{ background: "radial-gradient(1200px 700px at 8% 5%, rgba(137, 92, 255, 0.18), transparent 55%), radial-gradient(1000px 700px at 92% 8%, rgba(93, 216, 255, 0.14), transparent 50%), linear-gradient(170deg, #080b20 0%, #0d0a1a 56%, #090717 100%)" }}>
+      <section className="mx-auto flex min-h-[100dvh] w-full max-w-4xl flex-col px-4 py-5 sm:px-6 sm:py-8">
+        <header className="shrink-0 rounded-3xl border px-5 py-4 sm:px-6" style={{ borderColor: "rgba(168,139,250,0.22)", background: "rgba(10,12,30,0.58)", boxShadow: "0 20px 44px rgba(8,5,24,0.44), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
           <div className="flex items-center justify-between gap-3">
-            <Link href="/" className="text-base font-semibold text-star hover:text-violet-glow">
+            <Link href="/" className="text-lg font-semibold tracking-[0.04em] text-star hover:text-violet-glow">
               ホンネ
             </Link>
-            <p className="rounded-full px-3 py-1 text-[11px] text-starsub" style={{ border: "1px solid rgba(168,139,250,0.2)", background: "rgba(255,255,255,0.05)" }}>{usageBadge}</p>
+            <p className="max-w-[55%] truncate rounded-full px-3 py-1 text-[11px] text-starsub" style={{ border: "1px solid rgba(168,139,250,0.2)", background: "rgba(255,255,255,0.05)" }}>{usageBadge}</p>
           </div>
-          <p className="mt-1 text-[11px] text-starsub">毎日0時に回復</p>
+          <p className="mt-2 text-sm text-starsub">今の悩みを、そのまま話してください。</p>
         </header>
 
-        <div ref={listRef} className="relative flex-1 overflow-y-auto px-3 pb-44 pt-4 sm:px-5 sm:pb-56">
+        <div ref={listRef} className="relative mt-4 flex-1 overflow-y-auto pb-6">
           {/* 星5個（画面上部） */}
           {CHAT_STARS.map((s, i) => (
             <span
@@ -547,15 +547,17 @@ export function FortuneForm() {
         </div>
 
         <footer
-          className="sticky bottom-0 z-20 shrink-0 px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2 backdrop-blur sm:px-5"
-          style={{ borderTop: "1px solid rgba(168,139,250,0.2)", background: "rgba(13,10,26,0.95)", boxShadow: "0 -10px 26px rgba(124,58,237,0.14)" }}
+          className="mt-4 shrink-0 rounded-3xl border p-4 sm:p-5"
+          style={{ borderColor: "rgba(168,139,250,0.22)", background: "rgba(10,12,30,0.58)", boxShadow: "0 20px 44px rgba(8,5,24,0.44), inset 0 1px 0 rgba(255,255,255,0.08)" }}
         >
-          <div className="mb-2 flex items-center gap-2 overflow-x-auto pb-1">
+          <div className="mb-4 space-y-3">
+            <p className="text-xs tracking-[0.1em] text-starsub">鑑定モード</p>
+            <div className="flex flex-wrap items-center gap-2">
             <label className="relative">
               <select
                 value={mode}
                 onChange={(event) => setMode(event.target.value as FortuneMode)}
-                className="appearance-none rounded-full px-3 py-1 pr-7 text-xs font-medium text-star outline-none"
+                className="w-full min-w-[170px] appearance-none rounded-xl px-3 py-2.5 pr-8 text-sm font-medium text-star outline-none"
                 style={{ border: "1px solid rgba(168,139,250,0.3)", background: "rgba(255,255,255,0.07)" }}
                 disabled={submitting}
               >
@@ -568,25 +570,24 @@ export function FortuneForm() {
                   ── 近日追加予定 ──
                 </option>
               </select>
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-starsub">▼</span>
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-starsub">▼</span>
             </label>
 
-            <div className="flex items-center rounded-full p-1" style={{ border: "1px solid rgba(168,139,250,0.3)", background: "rgba(255,255,255,0.05)" }}>
+            <div className="flex items-center rounded-xl p-1" style={{ border: "1px solid rgba(168,139,250,0.3)", background: "rgba(255,255,255,0.05)" }}>
               <button
                 type="button"
                 onClick={() => setDepth("ライト")}
-                className={`rounded-full px-3 py-1 text-[11px] font-semibold transition ${
+                className={`rounded-lg px-4 py-2 text-xs font-semibold transition ${
                   depth === "ライト" ? "bg-violet/20 text-star" : "text-starsub"
                 }`}
                 disabled={submitting}
               >
                 ライト
-                <span className="ml-1 text-[10px] font-normal">1回分</span>
               </button>
               <button
                 type="button"
                 onClick={handleSelectDeep}
-                className={`rounded-full px-3 py-1 text-[11px] font-semibold transition ${
+                className={`rounded-lg px-4 py-2 text-xs font-semibold transition ${
                   depth === "ディープ"
                     ? "bg-gradient-to-r from-violet to-violet-soft text-white"
                     : "text-starsub hover:bg-violet/10"
@@ -594,32 +595,29 @@ export function FortuneForm() {
                 disabled={submitting}
               >
                 ディープ
-                <span className="ml-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold text-violet-glow" style={{ background: "rgba(168,139,250,0.15)" }}>おすすめ</span>
               </button>
             </div>
-
-            <p className="whitespace-nowrap text-[11px] text-starsub">より詳しく鑑定 / {deepCost}回分消費</p>
-
-            {showBirthSection ? (
-              <button
-                type="button"
-                onClick={() => birthForm.setIsBirthFormOpen((prev) => !prev)}
-                className="ml-auto whitespace-nowrap text-[11px] text-violet-glow underline underline-offset-2"
-                aria-expanded={birthForm.isBirthFormOpen}
-              >
-                {birthForm.isBirthFormOpen ? "生年月日入力を閉じる" : "生年月日を編集する"}
-              </button>
-            ) : (
-              <p className="ml-auto whitespace-nowrap text-[11px] text-starsub">タロット: 生年月日不要</p>
-            )}
+            </div>
+            <p className="text-[11px] text-starsub">ディープ利用時: {deepCost}回分消費</p>
           </div>
 
           {showBirthSection && (
-            <div
-              className={`grid transition-all duration-300 ease-out ${birthForm.isBirthFormOpen ? "mb-2 grid-rows-[1fr] opacity-100" : "mb-0 grid-rows-[0fr] opacity-0"}`}
-            >
+            <div className="mb-4 rounded-2xl border p-4" style={{ borderColor: "rgba(168,139,250,0.2)", background: "rgba(255,255,255,0.03)" }}>
+              <p className="text-xs text-starsub">より詳しく占いたい方は、生年月日を追加できます</p>
+              <button
+                type="button"
+                onClick={() => birthForm.setIsBirthFormOpen((prev) => !prev)}
+                className="mt-2 rounded-xl border px-4 py-2 text-sm text-violet-glow transition hover:bg-violet/10"
+                style={{ borderColor: "rgba(168,139,250,0.35)" }}
+                aria-expanded={birthForm.isBirthFormOpen}
+              >
+                {birthForm.isBirthFormOpen ? "生年月日入力を閉じる" : "生年月日を入力する"}
+              </button>
+              <div
+                className={`grid transition-all duration-300 ease-out ${birthForm.isBirthFormOpen ? "mt-4 grid-rows-[1fr] opacity-100" : "mt-0 grid-rows-[0fr] opacity-0"}`}
+              >
               <div className="overflow-hidden">
-                <div className="grid grid-cols-1 gap-2 rounded-xl p-2 sm:grid-cols-3" style={{ border: "1px solid rgba(168,139,250,0.2)", background: "rgba(124,58,237,0.08)" }}>
+                <div className="grid grid-cols-1 gap-3 rounded-xl p-2 lg:grid-cols-2 xl:grid-cols-3" style={{ border: "1px solid rgba(168,139,250,0.2)", background: "rgba(124,58,237,0.08)" }}>
                   <BirthDateSelect
                     label="自分の生年月日（必須）"
                     value={birthForm.data.selfBirthDate}
@@ -690,7 +688,7 @@ export function FortuneForm() {
                       </label>
                     </>
                   )}
-                  <label className="space-y-1 sm:col-span-3">
+                    <label className="space-y-1 lg:col-span-2 xl:col-span-3">
                     <span className="text-[11px] text-starsub">性別（任意）</span>
                     <select
                       value={birthForm.data.gender}
@@ -709,6 +707,7 @@ export function FortuneForm() {
                   </label>
                 </div>
               </div>
+            </div>
             </div>
           )}
 
@@ -761,17 +760,17 @@ export function FortuneForm() {
             </div>
           ) : null}
 
-          <form onSubmit={handleSubmit} className="flex items-end gap-2">
+          <form onSubmit={handleSubmit} className="space-y-3">
             <textarea
               ref={inputRef}
               value={input}
               onChange={(event) => setInput(event.target.value)}
               onKeyDown={isTarotMode ? undefined : onComposerKeyDown}
-              placeholder={isTarotMode ? "悩みを入力してカードを引いてください" : "恋愛や人生の悩みを入力してください"}
-              className="min-h-[52px] w-full rounded-2xl px-3 py-3 text-sm text-star outline-none placeholder:text-starsub/65"
-              style={{ border: "1px solid rgba(168,139,250,0.4)", background: "rgba(255,255,255,0.05)" }}
+              placeholder={isTarotMode ? "悩みを入力してカードを引いてください" : "今、心にあることをそのまま書いてください"}
+              className="min-h-[180px] w-full rounded-2xl px-4 py-4 text-base leading-relaxed text-star outline-none placeholder:text-starsub/75"
+              style={{ border: "1px solid rgba(168,139,250,0.35)", background: "rgba(255,255,255,0.05)" }}
               maxLength={2000}
-              rows={2}
+              rows={6}
               autoFocus
               disabled={!accessToken || submitting || loadingUsage || isLimited || cannotAffordCurrentDepth || isTarotFlowActive}
             />
@@ -786,17 +785,13 @@ export function FortuneForm() {
                 input.trim().length === 0 ||
                 (isTarotMode && tarotFlowStage !== "idle")
               }
-              className="h-[52px] rounded-2xl bg-gradient-to-r from-violet to-violet-soft px-4 text-sm font-semibold text-white shadow-sm shadow-violet/30 disabled:opacity-50"
+              className="w-full rounded-2xl px-5 py-3.5 text-sm font-semibold text-white transition disabled:opacity-50"
+              style={{ background: "linear-gradient(115deg, rgba(125, 74, 242, 0.94), rgba(89, 206, 255, 0.72))", boxShadow: "0 14px 34px rgba(86, 40, 186, 0.35), 0 0 22px rgba(92, 205, 255, 0.2)" }}
             >
               {isTarotMode ? (
                 <span>{tarotSubmitLabel}</span>
               ) : (
-                <>
-                  <span className="text-xl leading-none" aria-hidden="true">
-                    ↑
-                  </span>
-                  <span className="sr-only">{submitting ? "送信中" : "送信"}</span>
-                </>
+                "本音を話してみる"
               )}
             </button>
           </form>
@@ -816,11 +811,15 @@ export function FortuneForm() {
 
           {globalError ? <p className="mt-2 text-[11px] text-red-400">{globalError}</p> : null}
 
-          <div className="mt-3">
-            <LegalNotice compact showLinks />
-          </div>
+          <details className="mt-3 rounded-xl border px-3 py-2 text-[11px] text-starsub" style={{ borderColor: "rgba(168,139,250,0.2)", background: "rgba(255,255,255,0.03)" }}>
+            <summary className="cursor-pointer select-none">ご利用にあたっての注意事項</summary>
+            <div className="mt-2">
+              <LegalNotice compact showLinks />
+            </div>
+          </details>
         </footer>
       </section>
     </main>
   );
 }
+

@@ -21,7 +21,7 @@ export function useBirthForm() {
   const [partnerBirthTime, setPartnerBirthTime] = useState("");
   const [partnerBirthPlace, setPartnerBirthPlace] = useState("");
   const [gender, setGender] = useState<UserGender | "">("");
-  const [isBirthFormOpen, setIsBirthFormOpen] = useState(true);
+  const [isBirthFormOpen, setIsBirthFormOpen] = useState(false);
 
   const data: BirthFormData = {
     selfBirthDate,
