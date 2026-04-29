@@ -117,6 +117,10 @@ function HeroSection() {
             <br />
             次の一歩を一緒に見つけます。
           </p>
+          <div className="mt-8">
+            <CtaButton href="/chat" label="本音を話してみる" />
+            <p className="mt-3 text-xs tracking-[0.04em] text-[#cfc3e8]">匿名OK・誰にも見られません</p>
+          </div>
         </Reveal>
 
         <Reveal delay={0.12} className="order-2 flex justify-center lg:justify-end">
@@ -144,11 +148,6 @@ function HeroSection() {
             <span className="honne-crystal-particle honne-crystal-particle--c" />
             <span className="honne-crystal-particle honne-crystal-particle--d" />
           </div>
-        </Reveal>
-
-        <Reveal delay={0.18} className="order-3 lg:order-1">
-          <CtaButton href="/chat" label="本音を話してみる" />
-          <p className="mt-3 text-xs tracking-[0.04em] text-[#cfc3e8]">匿名OK・誰にも見られません</p>
         </Reveal>
       </div>
     </section>
