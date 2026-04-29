@@ -3,28 +3,12 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { Inter, Noto_Sans_JP } from "next/font/google";
-import { LazyMotion, domAnimation, m, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { LazyMotion, domAnimation, m, useReducedMotion } from "framer-motion";
 
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
 const notoSansJp = Noto_Sans_JP({ subsets: ["latin"], weight: ["400", "500", "700"], display: "swap" });
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-const PARTICLES = [
-  { x: 7, y: 18, r: 1.8, c: "#9D00FF", d: 0.2, t: 14 },
-  { x: 16, y: 58, r: 2.4, c: "#00E5FF", d: 1.1, t: 18 },
-  { x: 22, y: 37, r: 1.6, c: "#00E5FF", d: 0.5, t: 16 },
-  { x: 31, y: 72, r: 2.1, c: "#9D00FF", d: 1.4, t: 21 },
-  { x: 38, y: 24, r: 1.7, c: "#9D00FF", d: 0.9, t: 17 },
-  { x: 47, y: 43, r: 2.6, c: "#00E5FF", d: 0.1, t: 23 },
-  { x: 54, y: 16, r: 1.5, c: "#00E5FF", d: 1.2, t: 15 },
-  { x: 61, y: 65, r: 2.2, c: "#9D00FF", d: 0.4, t: 20 },
-  { x: 69, y: 31, r: 1.8, c: "#00E5FF", d: 1.7, t: 19 },
-  { x: 76, y: 54, r: 2.8, c: "#9D00FF", d: 0.6, t: 24 },
-  { x: 82, y: 20, r: 1.4, c: "#00E5FF", d: 1.5, t: 15 },
-  { x: 89, y: 40, r: 2.3, c: "#9D00FF", d: 0.3, t: 22 },
-  { x: 93, y: 74, r: 1.9, c: "#00E5FF", d: 1.8, t: 18 }
-] as const;
 
 const FEATURES = [
   {
@@ -59,16 +43,8 @@ function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; 
 
 function NeonButton({ href, label }: { href: string; label: string }) {
   return (
-    <Link
-      href={href}
-      className="group relative inline-flex items-center justify-center overflow-hidden rounded-full border border-[#9D00FF]/80 bg-[linear-gradient(110deg,rgba(157,0,255,0.34),rgba(0,229,255,0.18))] px-8 py-4 text-sm font-semibold tracking-[0.12em] text-white transition duration-500 hover:border-[#00E5FF]"
-      style={{ boxShadow: "0 0 18px rgba(157,0,255,0.55), inset 0 0 12px rgba(157,0,255,0.35)" }}
-    >
-      <span
-        className="pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100"
-        style={{ boxShadow: "0 0 46px rgba(0,229,255,0.7), inset 0 0 22px rgba(0,229,255,0.38)" }}
-      />
-      <span className="relative">{label}</span>
+    <Link href={href} className="honne-cta">
+      {label}
     </Link>
   );
 }
@@ -83,137 +59,54 @@ function SectionHead({ overline, title, body, centered = false }: { overline: st
   );
 }
 
-function AiMindIcon() {
-  return (
-    <svg viewBox="0 0 220 220" className="h-full w-full" aria-hidden>
-      <defs>
-        <radialGradient id="coreGlow" cx="50%" cy="40%" r="70%">
-          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.85" />
-          <stop offset="42%" stopColor="#00E5FF" stopOpacity="0.45" />
-          <stop offset="100%" stopColor="#9D00FF" stopOpacity="0.15" />
-        </radialGradient>
-      </defs>
-      <circle cx="110" cy="110" r="74" fill="url(#coreGlow)" />
-      <path d="M67 112C67 88 86 69 110 69C134 69 153 88 153 112C153 136 134 155 110 155C86 155 67 136 67 112Z" fill="none" stroke="#9D00FF" strokeWidth="2.3" />
-      <path d="M84 122C95 129 125 129 136 122" stroke="#00E5FF" strokeWidth="2.2" strokeLinecap="round" />
-      <circle cx="95" cy="104" r="6" fill="#00E5FF" />
-      <circle cx="125" cy="104" r="6" fill="#9D00FF" />
-      <path d="M43 110H58M162 110H177M110 43V58M110 162V177" stroke="#00E5FF" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function FlowingBackground() {
-  const reduced = useReducedMotion();
-  const { scrollY } = useScroll();
-  const layerOneY = useTransform(scrollY, [0, 1800], [0, -160]);
-  const layerTwoY = useTransform(scrollY, [0, 1800], [0, 130]);
-
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute inset-0 bg-[#03001C]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_14%,rgba(157,0,255,0.18),transparent_45%),radial-gradient(circle_at_84%_26%,rgba(0,229,255,0.16),transparent_42%),radial-gradient(circle_at_50%_96%,rgba(157,0,255,0.14),transparent_48%)]" />
-
-      <m.div
-        className="absolute -left-20 top-[-40px] h-80 w-80 rounded-full blur-[120px]"
-        style={{ background: "radial-gradient(circle, rgba(157,0,255,0.55), rgba(3,0,28,0.02) 70%)" }}
-        animate={reduced ? undefined : { x: [0, 28, 0], y: [0, 24, 0], opacity: [0.4, 0.58, 0.4] }}
-        transition={reduced ? undefined : { duration: 18, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <m.div
-        className="absolute right-[-90px] top-[18%] h-[420px] w-[420px] rounded-full blur-[140px]"
-        style={{ background: "radial-gradient(circle, rgba(0,229,255,0.44), rgba(3,0,28,0.03) 70%)" }}
-        animate={reduced ? undefined : { x: [0, -22, 0], y: [0, 20, 0], opacity: [0.25, 0.45, 0.25] }}
-        transition={reduced ? undefined : { duration: 20, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      <m.svg style={{ y: layerOneY }} viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full opacity-90">
-        {PARTICLES.map((p, idx) => (
-          <m.circle
-            key={`p1-${p.x}-${p.y}`}
-            cx={p.x}
-            cy={p.y}
-            r={p.r}
-            fill={p.c}
-            animate={reduced ? undefined : { cx: [p.x, p.x + (idx % 2 === 0 ? 1.4 : -1.1), p.x], cy: [p.y, p.y + 2.6, p.y], opacity: [0.36, 0.95, 0.36] }}
-            transition={reduced ? undefined : { duration: p.t, delay: p.d, repeat: Infinity, ease: "easeInOut" }}
-            style={{ filter: `drop-shadow(0 0 10px ${p.c})` }}
-          />
-        ))}
-      </m.svg>
-
-      <m.svg style={{ y: layerTwoY }} viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full opacity-60">
-        {PARTICLES.map((p, idx) => (
-          <m.circle
-            key={`p2-${p.x}-${p.y}`}
-            cx={p.x + (idx % 3 === 0 ? 1.8 : -1.6)}
-            cy={p.y + (idx % 4 === 0 ? -3 : 2)}
-            r={p.r * 0.62}
-            fill={idx % 2 === 0 ? "#9D00FF" : "#00E5FF"}
-            animate={reduced ? undefined : { cy: [p.y, p.y - 2.1, p.y], opacity: [0.2, 0.8, 0.2] }}
-            transition={reduced ? undefined : { duration: p.t + 6, delay: p.d, repeat: Infinity, ease: "easeInOut" }}
-            style={{ filter: "blur(0.6px)" }}
-          />
-        ))}
-      </m.svg>
-
-      <div
-        className="absolute inset-0 opacity-[0.14]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(157,0,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.45) 1px, transparent 1px)",
-          backgroundSize: "48px 48px, 48px 48px"
-        }}
-      />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,0,28,0.12)_0%,rgba(3,0,28,0.6)_58%,rgba(3,0,28,0.95)_100%)]" />
+    <div className="lp-night-bg pointer-events-none absolute inset-0 overflow-hidden">
+      <div className="lp-night-bg__stars" />
+      <div className="lp-night-bg__grid" />
+      <div className="lp-night-bg__mist" />
     </div>
   );
 }
 
 function HeroSection() {
-  const reduced = useReducedMotion();
-
   return (
-    <section className="relative flex min-h-[100svh] items-center px-5 pb-20 pt-14 sm:px-8 lg:px-16">
-      <div className="mx-auto grid w-full max-w-[1180px] items-center gap-14 lg:grid-cols-[1.04fr_0.96fr]">
-        <Reveal className="max-w-[620px]">
-          <p className={`${inter.className} text-xs uppercase tracking-[0.32em] text-[#00E5FF]/86`}>honne / behavior science ai</p>
-          <h1 className="mt-6 text-[clamp(2rem,6vw,4.1rem)] font-semibold leading-[1.2] text-white">
+    <section className="relative flex min-h-[92svh] items-center px-5 pb-16 pt-14 sm:px-8 sm:pt-16 lg:px-16">
+      <div className="mx-auto grid w-full max-w-[1200px] items-center gap-10 lg:grid-cols-[1.04fr_0.96fr] lg:gap-14">
+        <Reveal className="max-w-[640px]">
+          <p className={`${inter.className} text-[11px] uppercase tracking-[0.38em] text-[#87f4ff]/80`}>HONNE / INNER VOICE AI</p>
+          <h1 className="honne-hero-title mt-7 text-[clamp(2.1rem,6.8vw,4.6rem)] leading-[1.35] text-white">
             今夜は、ただ
-            <br />
-            「本音」を話すだけでいい。
+            <br className="hidden sm:block" />
+            「本音」を話せばいい。
           </h1>
-          <p className="mt-6 max-w-[46ch] text-sm leading-8 tracking-[0.05em] text-white/80 sm:text-base">
-            不安な夜に、もう迷わない。明日、あなたが踏み出すべき「次の一手」を、AIが行動心理学から導き出します。
+          <p className="mt-7 max-w-[34ch] text-[0.95rem] leading-[2.05] tracking-[0.04em] text-white/78 sm:text-[1.03rem]">
+            不安な夜に、もう一人で迷わなくていい。
+            <br />
+            あなたの言葉から、AIが心の奥にある本音と
+            <br />
+            次に踏み出す一歩を静かに導き出します。
           </p>
-          <div className="mt-9">
-            <NeonButton href="/chat" label="相談してみる" />
+          <div className="mt-10">
+            <NeonButton href="/chat" label="本音を話してみる" />
           </div>
         </Reveal>
 
         <Reveal delay={0.12} className="flex justify-center lg:justify-end">
-          <m.div
-            className="relative h-[300px] w-[300px] sm:h-[410px] sm:w-[410px]"
-            animate={reduced ? undefined : { y: [0, -8, 0] }}
-            transition={reduced ? undefined : { duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <m.div
-              className="absolute inset-0 rounded-full border border-[#9D00FF]/50"
-              animate={reduced ? undefined : { rotate: 360 }}
-              transition={reduced ? undefined : { duration: 52, repeat: Infinity, ease: "linear" }}
-            />
-            <m.div
-              className="absolute inset-8 rounded-full border border-[#00E5FF]/46"
-              animate={reduced ? undefined : { rotate: -360 }}
-              transition={reduced ? undefined : { duration: 68, repeat: Infinity, ease: "linear" }}
-            />
-            <div
-              className="absolute inset-14 rounded-full bg-[#040028]/85 p-10"
-              style={{ boxShadow: "0 0 60px rgba(157,0,255,0.45), inset 0 0 40px rgba(0,229,255,0.25)" }}
-            >
-              <AiMindIcon />
+          <div className="honne-crystal-scene" aria-hidden>
+            <div className="honne-crystal-aura" />
+            <div className="honne-crystal-ring honne-crystal-ring--outer" />
+            <div className="honne-crystal-ring honne-crystal-ring--inner" />
+            <div className="honne-crystal">
+              <span className="honne-crystal-facet honne-crystal-facet--left" />
+              <span className="honne-crystal-facet honne-crystal-facet--right" />
+              <span className="honne-crystal-facet honne-crystal-facet--core" />
             </div>
-          </m.div>
+            <span className="honne-crystal-particle honne-crystal-particle--a" />
+            <span className="honne-crystal-particle honne-crystal-particle--b" />
+            <span className="honne-crystal-particle honne-crystal-particle--c" />
+            <span className="honne-crystal-particle honne-crystal-particle--d" />
+          </div>
         </Reveal>
       </div>
     </section>

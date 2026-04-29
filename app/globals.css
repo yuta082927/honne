@@ -221,3 +221,299 @@ textarea {
   box-shadow: 0 0 32px rgba(168, 85, 247, 0.7), 0 0 16px rgba(192, 132, 252, 0.45);
   border-color: rgba(192, 132, 252, 0.9);
 }
+
+/* ── LP Hero: honne premium visual ─────────────────────── */
+@keyframes honneTwinkle {
+  0% { opacity: 0.3; transform: translateY(0px); }
+  50% { opacity: 0.8; transform: translateY(-4px); }
+  100% { opacity: 0.3; transform: translateY(0px); }
+}
+
+@keyframes honneDrift {
+  0% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-8px, -12px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes honneFloat {
+  0% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -12px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes honneRotateSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes honnePulse {
+  0% { opacity: 0.45; transform: scale(0.94); }
+  50% { opacity: 0.72; transform: scale(1.04); }
+  100% { opacity: 0.45; transform: scale(0.94); }
+}
+
+.lp-night-bg {
+  background:
+    radial-gradient(140% 120% at 8% 12%, rgba(118, 51, 189, 0.24) 0%, rgba(9, 12, 44, 0) 52%),
+    radial-gradient(110% 100% at 86% 18%, rgba(73, 180, 232, 0.15) 0%, rgba(7, 10, 34, 0) 56%),
+    radial-gradient(120% 130% at 50% 100%, rgba(114, 35, 191, 0.17) 0%, rgba(3, 4, 18, 0.96) 72%),
+    linear-gradient(160deg, #06091d 0%, #090a28 45%, #050716 100%);
+}
+
+.lp-night-bg__stars,
+.lp-night-bg__grid,
+.lp-night-bg__mist {
+  position: absolute;
+  inset: 0;
+}
+
+.lp-night-bg__stars::before,
+.lp-night-bg__stars::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat;
+}
+
+.lp-night-bg__stars::before {
+  opacity: 0.45;
+  background-image:
+    radial-gradient(circle at 14% 22%, rgba(255, 255, 255, 0.85) 0.7px, transparent 1.4px),
+    radial-gradient(circle at 70% 38%, rgba(170, 207, 255, 0.82) 0.8px, transparent 1.5px),
+    radial-gradient(circle at 36% 72%, rgba(196, 168, 255, 0.88) 0.7px, transparent 1.4px),
+    radial-gradient(circle at 84% 76%, rgba(146, 250, 255, 0.8) 0.75px, transparent 1.4px);
+  background-size: 280px 280px, 340px 340px, 400px 400px, 460px 460px;
+  animation: honneDrift 18s ease-in-out infinite;
+}
+
+.lp-night-bg__stars::after {
+  opacity: 0.22;
+  background-image:
+    radial-gradient(circle at 22% 30%, rgba(255, 255, 255, 0.9) 0.65px, transparent 1.2px),
+    radial-gradient(circle at 62% 12%, rgba(172, 232, 255, 0.82) 0.7px, transparent 1.4px),
+    radial-gradient(circle at 92% 60%, rgba(205, 186, 255, 0.85) 0.7px, transparent 1.35px);
+  background-size: 220px 220px, 330px 330px, 450px 450px;
+  animation: honneTwinkle 9s ease-in-out infinite;
+}
+
+.lp-night-bg__grid {
+  opacity: 0.07;
+  background-image:
+    linear-gradient(rgba(154, 159, 255, 0.8) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 169, 255, 0.7) 1px, transparent 1px);
+  background-size: 62px 62px;
+  mask-image: linear-gradient(180deg, transparent 0%, black 18%, black 70%, transparent 100%);
+}
+
+.lp-night-bg__mist {
+  background:
+    radial-gradient(70% 35% at 18% 24%, rgba(145, 108, 255, 0.1) 0%, rgba(145, 108, 255, 0) 68%),
+    radial-gradient(55% 30% at 80% 36%, rgba(121, 231, 255, 0.08) 0%, rgba(121, 231, 255, 0) 72%);
+  filter: blur(1.4px);
+}
+
+.honne-hero-title {
+  font-family: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-wrap: balance;
+}
+
+.honne-cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgba(150, 225, 255, 0.54);
+  background: linear-gradient(120deg, rgba(94, 53, 177, 0.52), rgba(89, 180, 219, 0.25));
+  padding: 0.88rem 1.9rem;
+  color: #f8f8ff;
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  box-shadow:
+    0 12px 34px rgba(48, 20, 92, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36),
+    inset 0 -10px 28px rgba(23, 15, 65, 0.55);
+  backdrop-filter: blur(10px);
+  transition: transform 0.32s ease, box-shadow 0.32s ease, border-color 0.32s ease;
+}
+
+.honne-cta::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+.honne-cta:hover {
+  transform: translateY(-2px);
+  border-color: rgba(132, 247, 255, 0.8);
+  box-shadow:
+    0 16px 38px rgba(60, 24, 120, 0.44),
+    0 0 26px rgba(97, 213, 255, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.honne-crystal-scene {
+  position: relative;
+  width: min(86vw, 440px);
+  aspect-ratio: 1 / 1;
+  animation: honneFloat 11s ease-in-out infinite;
+}
+
+.honne-crystal-aura {
+  position: absolute;
+  inset: 18%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(181, 163, 255, 0.42) 0%, rgba(103, 192, 233, 0.18) 38%, rgba(3, 6, 25, 0) 72%);
+  filter: blur(10px);
+  animation: honnePulse 7.5s ease-in-out infinite;
+}
+
+.honne-crystal-ring {
+  position: absolute;
+  border-radius: 9999px;
+  border: 1px solid rgba(155, 196, 255, 0.26);
+}
+
+.honne-crystal-ring--outer {
+  inset: 4%;
+  animation: honneRotateSlow 38s linear infinite;
+}
+
+.honne-crystal-ring--inner {
+  inset: 15%;
+  border-color: rgba(197, 148, 255, 0.26);
+  animation: honneRotateSlow 29s linear infinite reverse;
+}
+
+.honne-crystal {
+  position: absolute;
+  inset: 19%;
+  clip-path: polygon(50% 0%, 76% 14%, 88% 43%, 72% 86%, 50% 100%, 28% 86%, 12% 43%, 24% 14%);
+  background: linear-gradient(158deg, rgba(217, 243, 255, 0.76) 0%, rgba(142, 218, 255, 0.28) 36%, rgba(163, 125, 255, 0.36) 68%, rgba(82, 49, 157, 0.62) 100%);
+  border: 1px solid rgba(231, 251, 255, 0.58);
+  box-shadow:
+    0 0 35px rgba(144, 102, 255, 0.42),
+    0 0 85px rgba(92, 198, 255, 0.22),
+    inset 0 0 30px rgba(220, 246, 255, 0.2);
+  animation: honneRotateSlow 42s linear infinite;
+  transform-origin: 50% 53%;
+}
+
+.honne-crystal::before {
+  content: "";
+  position: absolute;
+  inset: 14% 22%;
+  border-radius: 22% 22% 38% 38%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(201, 243, 255, 0.26) 40%, rgba(125, 92, 221, 0.28) 100%);
+  filter: blur(1px);
+}
+
+.honne-crystal::after {
+  content: "";
+  position: absolute;
+  inset: 20% 42% 16%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.84) 0%, rgba(173, 240, 255, 0.28) 46%, rgba(173, 240, 255, 0) 75%);
+  filter: blur(0.8px);
+}
+
+.honne-crystal-facet {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.honne-crystal-facet--left {
+  clip-path: polygon(24% 12%, 50% 0%, 50% 100%, 24% 86%, 12% 43%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(176, 128, 255, 0.2));
+}
+
+.honne-crystal-facet--right {
+  clip-path: polygon(50% 0%, 76% 14%, 88% 43%, 72% 86%, 50% 100%);
+  background: linear-gradient(180deg, rgba(234, 248, 255, 0.42), rgba(102, 213, 255, 0.16));
+}
+
+.honne-crystal-facet--core {
+  clip-path: polygon(34% 15%, 66% 15%, 72% 46%, 58% 83%, 42% 83%, 28% 46%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(132, 194, 255, 0.1));
+  mix-blend-mode: screen;
+}
+
+.honne-crystal-particle {
+  position: absolute;
+  display: block;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(176, 237, 255, 0.85) 46%, rgba(176, 237, 255, 0) 100%);
+  filter: blur(0.2px);
+}
+
+.honne-crystal-particle--a {
+  width: 10px;
+  height: 10px;
+  left: 16%;
+  top: 28%;
+  animation: honneTwinkle 8s ease-in-out infinite;
+}
+
+.honne-crystal-particle--b {
+  width: 8px;
+  height: 8px;
+  right: 22%;
+  top: 16%;
+  animation: honneTwinkle 9.4s ease-in-out infinite 0.8s;
+}
+
+.honne-crystal-particle--c {
+  width: 9px;
+  height: 9px;
+  right: 16%;
+  bottom: 22%;
+  animation: honneTwinkle 10.2s ease-in-out infinite 0.3s;
+}
+
+.honne-crystal-particle--d {
+  width: 7px;
+  height: 7px;
+  left: 24%;
+  bottom: 20%;
+  animation: honneTwinkle 8.6s ease-in-out infinite 1.1s;
+}
+
+@media (max-width: 1023px) {
+  .honne-crystal-scene {
+    width: min(82vw, 360px);
+  }
+}
+
+@media (max-width: 640px) {
+  .honne-hero-title {
+    line-height: 1.46;
+  }
+
+  .honne-cta {
+    padding: 0.82rem 1.45rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-night-bg__stars::before,
+  .lp-night-bg__stars::after,
+  .honne-crystal-scene,
+  .honne-crystal-aura,
+  .honne-crystal-ring--outer,
+  .honne-crystal-ring--inner,
+  .honne-crystal,
+  .honne-crystal-particle {
+    animation: none !important;
+  }
+}
